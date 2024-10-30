@@ -1,7 +1,9 @@
 "use client";
 import AnimatedArrow from "@/components/AnimatedArrow";
 import StepCard from "@/components/StepCard";
+import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 const containerVariants = {
   visible: { transition: { staggerChildren: 0.5 } },
@@ -13,10 +15,13 @@ export default function Home() {
     <div className="relative">
       <div className="absolute z-[-1] bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_80%)]"></div>
 
-      <div className="min-h-screen flex flex-col items-center pt-40 relative z-[10]">
+      <div className="min-h-screen flex flex-col items-center pt-32 relative z-[10]">
         <h1 className="bg-gradient-to-r text-center from-gray-600 font-bold text-6xl to-gray-900 inline-block text-transparent bg-clip-text">
           Get Verified, <br />
-          Secure Your Qcell Connection.
+          Secure Your{" "}
+          <span className="text-[#F78F1E] font-bold">
+            Qcell Connection.{" "}
+          </span>{" "}
         </h1>
 
         <p className="text-xl mb-8 text-gray-600 max-w-xl text-center mt-4">
@@ -24,6 +29,14 @@ export default function Home() {
           seamless access to{" "}
           <span className="text-[#F78F1E] font-bold">Qcell’s</span> services.
         </p>
+
+        <div className=" bg-[#8d5f2e] p-2 rounded-lg ">
+          <Link href="/getVerified">
+            <Button type="button" variant={"link"} className="text-white">
+              Get Started
+            </Button>
+          </Link>
+        </div>
 
         <div className="mt-4 max-w-5xl mx-auto">
           <h2 className="text-2xl  mb-6 text-center text-[#F78F1E] font-bold uppercase ">
