@@ -70,3 +70,23 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* ===== TYPOGRAPHY */
+.text-36-bold {
+  @apply text-[36px] leading-[40px] font-bold;
+}
+.text-16-semibold {
+  @apply text-[16px] leading-[20px] font-semibold;
+}
+
+.shad-otp {
+  @apply w-full flex justify-between !important;
+}
+
+.shad-otp-slot {
+  @apply text-36-bold justify-center flex border border-slate-500 rounded-lg size-16 gap-4 !important;
+}
+
+.shad-alert-dialog {
+  @apply space-y-5 bg-slate-400 border-slate-500 outline-none !important;
+}

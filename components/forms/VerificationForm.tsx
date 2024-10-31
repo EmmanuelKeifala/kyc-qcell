@@ -7,11 +7,18 @@ import {
   Shield,
   FileImage,
   X,
+  ArrowLeft,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface FormData {
@@ -38,28 +45,16 @@ const VerificationForm = () => {
     selfie: null,
   });
 
-  const validatePhone = (number: string) => {
-    // const phoneRegex = /^(031|034)\d{7}$/;
-    if (1 != 1) {
-      setPhoneError(
-        "Phone number must start with 031 or 034 and be 11 digits long"
-      );
-      return false;
-    }
-    setPhoneError("");
-    return true;
-  };
-
   const sendOTP = () => {
     console.log("Sending OTP to", formData.phoneNumber);
   };
 
   const steps = [
-    { title: "Phone", icon: <Phone className="w-5 h-5" /> },
-    { title: "Verify", icon: <Shield className="w-5 h-5" /> },
-    { title: "ID Card", icon: <FileImage className="w-5 h-5" /> },
-    { title: "Selfie", icon: <User className="w-5 h-5" /> },
-    { title: "Review", icon: <CheckCircle className="w-5 h-5" /> },
+    { title: "Phone", icon: <Phone size={40} /> },
+    { title: "Verify", icon: <Shield size={40} /> },
+    { title: "ID Card", icon: <FileImage size={40} /> },
+    { title: "Selfie", icon: <User size={40} /> },
+    { title: "Review", icon: <CheckCircle size={40} /> },
   ];
 
   const handleNext = () => {
@@ -72,15 +67,13 @@ const VerificationForm = () => {
 
   const handlePhoneSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (validatePhone(formData.phoneNumber)) {
-      sendOTP();
-      handleNext();
-    }
+    sendOTP();
+    handleNext();
   };
 
   const handleOTPSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.otp) {
+    if (formData.otp.length === 6) {
       handleNext();
     }
   };
@@ -112,9 +105,17 @@ const VerificationForm = () => {
         <div key={step.title} className="flex items-center">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: index * 0.1 }}
-            className={`flex items-center justify-center w-10 h-10 rounded-full border-2 
+            animate={{
+              scale: 1,
+              opacity: 1,
+              transition: {
+                type: "spring",
+                stiffness: 300,
+                damping: 20,
+                delay: index * 0.1,
+              },
+            }}
+            className={`flex items-center justify-center rounded-full border-2 w-fit h-fit p-3
               ${
                 index + 1 === currentStep
                   ? "border-[#F78F1E] bg-[#FFF5E9]"
@@ -130,8 +131,15 @@ const VerificationForm = () => {
           {index < steps.length - 1 && (
             <motion.div
               initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ delay: index * 0.1 }}
+              animate={{
+                scaleX: 1,
+                transition: {
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 20,
+                  delay: index * 0.1,
+                },
+              }}
               className={`w-12 h-1 ${
                 index + 1 < currentStep ? "bg-[#F78F1E]" : "bg-gray-300"
               }`}
@@ -143,9 +151,29 @@ const VerificationForm = () => {
   );
 
   const pageVariants = {
-    initial: { opacity: 0, x: 50 },
-    animate: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: -50 },
+    initial: {
+      opacity: 0,
+      y: 20,
+      scale: 0.95,
+    },
+    animate: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 20,
+      },
+    },
+    exit: {
+      opacity: 0,
+      y: -20,
+      scale: 0.95,
+      transition: {
+        duration: 0.2,
+      },
+    },
   };
 
   const ImagePreview = ({ type }: { type: "idCard" | "selfie" }) => (
@@ -174,30 +202,41 @@ const VerificationForm = () => {
         initial="initial"
         animate="animate"
         exit="exit"
-        transition={{ duration: 0.3 }}
+        className="min-h-[300px] flex flex-col"
       >
         {(() => {
           switch (currentStep) {
             case 1:
               return (
-                <form onSubmit={handlePhoneSubmit} className="space-y-4">
-                  <div className="space-y-2 flex flex-col">
-                    <label className="text-sm font-medium text-left">
-                      Phone Number
-                    </label>
-                    <Input
-                      type="tel"
-                      placeholder="Enter your phone number (031... or 034...)"
+                <form
+                  onSubmit={handlePhoneSubmit}
+                  className="space-y-6 flex-1 flex flex-col"
+                >
+                  <div className="space-y-2 flex-1">
+                    <label className="text-16-semibold">Phone Number</label>
+                    <InputOTP
+                      maxLength={10}
                       value={formData.phoneNumber}
-                      onChange={(e) =>
+                      onChange={(value) =>
                         setFormData((prev) => ({
                           ...prev,
-                          phoneNumber: e.target.value,
+                          phoneNumber: value,
                         }))
                       }
-                      className="border-[#F78F1E] focus:ring-[#F78F1E] w-[50%] h-16"
-                      required
-                    />
+                    >
+                      <InputOTPGroup className="shad-otp">
+                        <InputOTPSlot index={0} className="shad-otp-slot" />
+                        <InputOTPSlot index={1} className="shad-otp-slot" />
+                        <InputOTPSlot index={2} className="shad-otp-slot" />
+                        <InputOTPSeparator />
+                        <InputOTPSlot index={3} className="shad-otp-slot" />
+                        <InputOTPSlot index={4} className="shad-otp-slot" />
+                        <InputOTPSlot index={5} className="shad-otp-slot" />
+                        <InputOTPSlot index={6} className="shad-otp-slot" />
+                        <InputOTPSlot index={7} className="shad-otp-slot" />
+                        <InputOTPSlot index={8} className="shad-otp-slot" />
+                      </InputOTPGroup>
+                    </InputOTP>
                     {phoneError && (
                       <p className="text-red-500 text-sm">{phoneError}</p>
                     )}
@@ -208,7 +247,7 @@ const VerificationForm = () => {
                   >
                     <Button
                       type="submit"
-                      className="bg-[#F78F1E] hover:bg-[#E67D0E] text-white w-fit"
+                      className="bg-[#F78F1E] hover:bg-[#E67D0E] text-white w-full"
                     >
                       Send OTP
                     </Button>
@@ -218,91 +257,107 @@ const VerificationForm = () => {
 
             case 2:
               return (
-                <form onSubmit={handleOTPSubmit} className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Enter OTP</label>
-                    <Input
-                      type="text"
-                      placeholder="Enter OTP"
+                <form
+                  onSubmit={handleOTPSubmit}
+                  className="space-y-6 flex-1 flex flex-col"
+                >
+                  <div className="space-y-4 flex-1">
+                    <label className="text-16-semibold">Enter OTP</label>
+                    <InputOTP
+                      maxLength={6}
                       value={formData.otp}
-                      onChange={(e) =>
+                      onChange={(value) =>
                         setFormData((prev) => ({
                           ...prev,
-                          otp: e.target.value,
+                          otp: value,
                         }))
                       }
-                      className="border-[#F78F1E] focus:ring-[#F78F1E]"
-                      required
-                    />
-                  </div>
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <Button
-                      type="submit"
-                      className="w-full bg-[#F78F1E] hover:bg-[#E67D0E] text-white"
                     >
-                      Verify OTP
-                    </Button>
-                  </motion.div>
+                      <InputOTPGroup className="shad-otp">
+                        <InputOTPSlot index={0} className="shad-otp-slot" />
+                        <InputOTPSlot index={1} className="shad-otp-slot" />
+                        <InputOTPSlot index={2} className="shad-otp-slot" />
+                        <InputOTPSeparator />
+                        <InputOTPSlot index={3} className="shad-otp-slot" />
+                        <InputOTPSlot index={4} className="shad-otp-slot" />
+                        <InputOTPSlot index={5} className="shad-otp-slot" />
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </div>
+                  <div className="space-y-3">
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Button
+                        type="submit"
+                        className="w-full bg-[#F78F1E] hover:bg-[#E67D0E] text-white"
+                      >
+                        Verify OTP
+                      </Button>
+                    </motion.div>
+                  </div>
                 </form>
               );
 
             case 3:
               return (
-                <motion.div className="space-y-4" whileHover={{ scale: 1.02 }}>
-                  {previewUrls.idCard ? (
-                    <ImagePreview type="idCard" />
-                  ) : (
-                    <div className="border-2 border-dashed border-[#F78F1E] rounded-lg p-6 text-center">
-                      <input
-                        type="file"
-                        id="idCard"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={(e) => handleFileUpload("idCard", e)}
-                      />
-                      <label htmlFor="idCard" className="cursor-pointer">
-                        <Upload className="mx-auto w-12 h-12 text-[#F78F1E]" />
-                        <p className="mt-2 text-[#F78F1E] font-medium">
-                          Upload ID Card Photo
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          Click to upload or drag and drop
-                        </p>
-                      </label>
-                    </div>
-                  )}
-                </motion.div>
+                <div className="space-y-6 flex-1 flex flex-col">
+                  <motion.div className="flex-1" whileHover={{ scale: 1.02 }}>
+                    {previewUrls.idCard ? (
+                      <ImagePreview type="idCard" />
+                    ) : (
+                      <div className="border-2 border-dashed border-[#F78F1E] rounded-lg p-6 text-center h-full flex flex-col items-center justify-center">
+                        <input
+                          type="file"
+                          id="idCard"
+                          className="hidden"
+                          accept="image/*"
+                          onChange={(e) => handleFileUpload("idCard", e)}
+                        />
+                        <label htmlFor="idCard" className="cursor-pointer">
+                          <Upload className="mx-auto w-12 h-12 text-[#F78F1E]" />
+                          <p className="mt-2 text-[#F78F1E] font-medium">
+                            Upload ID Card Photo
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            Click to upload or drag and drop
+                          </p>
+                        </label>
+                      </div>
+                    )}
+                  </motion.div>
+                </div>
               );
 
             case 4:
               return (
-                <motion.div className="space-y-4" whileHover={{ scale: 1.02 }}>
-                  {previewUrls.selfie ? (
-                    <ImagePreview type="selfie" />
-                  ) : (
-                    <div className="border-2 border-dashed border-[#F78F1E] rounded-lg p-6 text-center">
-                      <input
-                        type="file"
-                        id="selfie"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={(e) => handleFileUpload("selfie", e)}
-                      />
-                      <label htmlFor="selfie" className="cursor-pointer">
-                        <Upload className="mx-auto w-12 h-12 text-[#F78F1E]" />
-                        <p className="mt-2 text-[#F78F1E] font-medium">
-                          Upload Selfie
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          Click to upload or drag and drop
-                        </p>
-                      </label>
-                    </div>
-                  )}
-                </motion.div>
+                <div className="space-y-6 flex-1 flex flex-col">
+                  <motion.div className="flex-1" whileHover={{ scale: 1.02 }}>
+                    {previewUrls.selfie ? (
+                      <ImagePreview type="selfie" />
+                    ) : (
+                      <div className="border-2 border-dashed border-[#F78F1E] rounded-lg p-6 text-center h-full flex flex-col items-center justify-center">
+                        <input
+                          type="file"
+                          id="selfie"
+                          className="hidden"
+                          accept="image/*"
+                          onChange={(e) => handleFileUpload("selfie", e)}
+                        />
+                        <label htmlFor="selfie" className="cursor-pointer">
+                          <Upload className="mx-auto w-12 h-12 text-[#F78F1E]" />
+                          <p className="mt-2 text-[#F78F1E] font-medium">
+                            Upload Selfie
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            Click to upload or drag and drop
+                          </p>
+                        </label>
+                      </div>
+                    )}
+                  </motion.div>
+                </div>
               );
 
             case 5:
