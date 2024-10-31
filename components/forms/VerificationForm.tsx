@@ -22,6 +22,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { SendOTP, VerifyOTP } from "@/actions/send-otp";
 import Image from "next/image";
+import { toast } from "react-toastify";
 
 interface FormData {
   phoneNumber: string;
@@ -39,8 +40,6 @@ const VerificationForm = () => {
     selfie: null,
   });
   const [loading, setLoading] = useState(false);
-
-  const [phoneError, setPhoneError] = useState<string>("");
   const [previewUrls, setPreviewUrls] = useState<{
     idCard: string | null;
     selfie: string | null;
@@ -69,23 +68,59 @@ const VerificationForm = () => {
     e.preventDefault();
 
     if (formData.phoneNumber.length !== 9) {
-      setPhoneError("Please enter a valid 9-digit phone number.");
+      toast.info("Please enter a valid 9-digit phone number.", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
       return;
     }
-    setPhoneError("");
     setLoading(true);
     try {
       const { success, data } = await SendOTP({ number: formData.phoneNumber });
       if (success) {
         // use tostify here
-        setPhoneError("OTP sent successfully! Please check your phone.");
+        toast.success("OTP sent successfully! Please check your phone.", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
         handleNext();
       } else {
-        setPhoneError(`Failed to send OTP: ${data}`);
+        toast.error(`Failed to send OTP: ${data}`, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
       }
     } catch (error) {
-      setPhoneError(
-        "An error occurred while sending the OTP. Please try again."
+      toast.error(
+        `An error occurred while sending the OTP. Please try again.`,
+        {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        }
       );
     } finally {
       setLoading(false);
@@ -96,13 +131,11 @@ const VerificationForm = () => {
     e.preventDefault();
 
     if (formData.otp.length !== 6) {
-      setPhoneError("Please enter a valid 6-digit OTP.");
+      toast.info("Please enter a valid 6-digit OTP.");
       return;
     }
 
-    setPhoneError("");
     setLoading(true);
-    setPhoneError(""); // Clear previous feedback messages
 
     try {
       const { success, data } = await VerifyOTP({
@@ -111,14 +144,42 @@ const VerificationForm = () => {
       });
 
       if (success) {
-        setPhoneError("OTP verified successfully!");
+        toast.success("OTP verified successfully!", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
         handleNext();
       } else {
-        setPhoneError(`Verification failed: ${data}`);
+        toast.error(`Verification failed: ${data}`, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
       }
     } catch (error) {
-      setPhoneError(
-        "An error occurred during OTP verification. Please try again."
+      toast.error(
+        "An error occurred during OTP verification. Please try again.",
+        {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        }
       );
     } finally {
       setLoading(false);
@@ -286,9 +347,6 @@ const VerificationForm = () => {
                         <InputOTPSlot index={8} className="shad-otp-slot" />
                       </InputOTPGroup>
                     </InputOTP>
-                    {phoneError && (
-                      <p className="text-red-500 text-sm">{phoneError}</p>
-                    )}
                   </div>
                   <motion.div
                     whileHover={{ scale: 1.02 }}
