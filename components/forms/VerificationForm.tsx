@@ -8,6 +8,7 @@ import {
   FileImage,
   X,
   ArrowLeft,
+  ArrowLeftCircle,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { SendOTP, VerifyOTP } from "@/actions/send-otp";
 import Image from "next/image";
 import { toast } from "react-toastify";
+import Link from "next/link";
 
 interface FormData {
   phoneNumber: string;
@@ -529,12 +531,18 @@ const VerificationForm = () => {
     <div className="flex justify-center items-center min-h-screen py-10 px-4">
       <Card className="w-[60vw] border-[#F78F1E]/20">
         <CardContent className="pt-6">
-          <motion.div
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="text-center text-2xl font-semibold mb-6 text-[#F78F1E]"
-          >
-            Get Verified
+          <motion.div className="flex items-center justify-between mb-4">
+            <Link href={"/"}>
+              <ArrowLeftCircle size={40} className="text-[#F78F1E]" />
+            </Link>
+            <motion.div
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              className="text-center text-2xl font-semibold mb-6 text-[#F78F1E]"
+            >
+              Get Verified
+            </motion.div>
+            <div />
           </motion.div>
           {renderStepIndicator()}
           <div className="mt-6">{renderStep()}</div>
