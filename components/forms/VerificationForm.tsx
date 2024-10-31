@@ -25,6 +25,7 @@ import { SendOTP, VerifyOTP } from "@/actions/send-otp";
 import Image from "next/image";
 import { toast } from "react-toastify";
 import Link from "next/link";
+import Loader from "../Loader";
 
 interface FormData {
   phoneNumber: string;
@@ -69,6 +70,7 @@ const VerificationForm = () => {
   const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    setLoading(true);
     if (formData.phoneNumber.length !== 9) {
       toast.info("Please enter a valid 9-digit phone number.", {
         position: "top-right",
@@ -80,9 +82,9 @@ const VerificationForm = () => {
         progress: undefined,
         theme: "light",
       });
+      setLoading(false);
       return;
     }
-    setLoading(true);
     try {
       const { success, data } = await SendOTP({ number: formData.phoneNumber });
       if (success) {
@@ -132,12 +134,12 @@ const VerificationForm = () => {
   const handleOTPSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    setLoading(true);
     if (formData.otp.length !== 6) {
       toast.info("Please enter a valid 6-digit OTP.");
+      setLoading(false);
       return;
     }
-
-    setLoading(true);
 
     try {
       const { success, data } = await VerifyOTP({
@@ -362,7 +364,7 @@ const VerificationForm = () => {
                         Send OTP
                       </Button>
                     ) : (
-                      <span className=" w-6 h-6 text-[#F78F1E] bg-[#F78F1E]" />
+                      <Loader />
                     )}
                   </motion.div>
                 </form>
@@ -402,12 +404,16 @@ const VerificationForm = () => {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      <Button
-                        type="submit"
-                        className="w-full bg-[#F78F1E] hover:bg-[#E67D0E] text-white"
-                      >
-                        Verify OTP
-                      </Button>
+                      {!loading ? (
+                        <Button
+                          type="submit"
+                          className="bg-[#F78F1E] hover:bg-[#E67D0E] text-white w-full"
+                        >
+                          Verify OTP
+                        </Button>
+                      ) : (
+                        <Loader />
+                      )}
                     </motion.div>
                   </div>
                 </form>

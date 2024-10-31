@@ -5,7 +5,6 @@ const TEST = "1"; // Set to "1" for testing mode
 
 export async function SendOTP({ number }: { number: string }) {
   try {
-    // Helper to remove leading zero
     function removeLeadingZero(num: string) {
       return num.startsWith("0") ? num.slice(1) : num;
     }
@@ -14,7 +13,6 @@ export async function SendOTP({ number }: { number: string }) {
       ? number
       : "232" + removeLeadingZero(number);
 
-    // Check if the phone number already exists in the database
     const { data: existingUser, error: fetchError } = await supabase
       .from("verification_applicants")
       .select("phoneNumber")
