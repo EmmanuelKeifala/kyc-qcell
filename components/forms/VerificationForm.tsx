@@ -20,6 +20,8 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { motion, AnimatePresence } from "framer-motion";
+import { SendOTP, VerifyOTP } from "@/actions/send-otp";
+import Image from "next/image";
 
 interface FormData {
   phoneNumber: string;
@@ -36,6 +38,8 @@ const VerificationForm = () => {
     idCard: null,
     selfie: null,
   });
+  const [loading, setLoading] = useState(false);
+
   const [phoneError, setPhoneError] = useState<string>("");
   const [previewUrls, setPreviewUrls] = useState<{
     idCard: string | null;
@@ -44,10 +48,6 @@ const VerificationForm = () => {
     idCard: null,
     selfie: null,
   });
-
-  const sendOTP = () => {
-    console.log("Sending OTP to", formData.phoneNumber);
-  };
 
   const steps = [
     { title: "Phone", icon: <Phone size={40} /> },
@@ -65,16 +65,63 @@ const VerificationForm = () => {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
-  const handlePhoneSubmit = (e: React.FormEvent) => {
+  const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    sendOTP();
-    handleNext();
+
+    if (formData.phoneNumber.length !== 9) {
+      setPhoneError("Please enter a valid 9-digit phone number.");
+      return;
+    }
+    setPhoneError("");
+    setLoading(true);
+    try {
+      const { success, data } = await SendOTP({ number: formData.phoneNumber });
+      if (success) {
+        // use tostify here
+        setPhoneError("OTP sent successfully! Please check your phone.");
+        handleNext();
+      } else {
+        setPhoneError(`Failed to send OTP: ${data}`);
+      }
+    } catch (error) {
+      setPhoneError(
+        "An error occurred while sending the OTP. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleOTPSubmit = (e: React.FormEvent) => {
+  const handleOTPSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.otp.length === 6) {
-      handleNext();
+
+    if (formData.otp.length !== 6) {
+      setPhoneError("Please enter a valid 6-digit OTP.");
+      return;
+    }
+
+    setPhoneError("");
+    setLoading(true);
+    setPhoneError(""); // Clear previous feedback messages
+
+    try {
+      const { success, data } = await VerifyOTP({
+        number: formData.phoneNumber,
+        otp: formData.otp,
+      });
+
+      if (success) {
+        setPhoneError("OTP verified successfully!");
+        handleNext();
+      } else {
+        setPhoneError(`Verification failed: ${data}`);
+      }
+    } catch (error) {
+      setPhoneError(
+        "An error occurred during OTP verification. Please try again."
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -178,8 +225,10 @@ const VerificationForm = () => {
 
   const ImagePreview = ({ type }: { type: "idCard" | "selfie" }) => (
     <div className="relative">
-      <img
+      <Image
         src={previewUrls[type]!}
+        width={1000}
+        height={1000}
         alt={`${type} preview`}
         className="w-full h-64 object-contain rounded-lg"
       />
@@ -245,12 +294,16 @@ const VerificationForm = () => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <Button
-                      type="submit"
-                      className="bg-[#F78F1E] hover:bg-[#E67D0E] text-white w-full"
-                    >
-                      Send OTP
-                    </Button>
+                    {!loading ? (
+                      <Button
+                        type="submit"
+                        className="bg-[#F78F1E] hover:bg-[#E67D0E] text-white w-full"
+                      >
+                        Send OTP
+                      </Button>
+                    ) : (
+                      <span className=" w-6 h-6 text-[#F78F1E] bg-[#F78F1E]" />
+                    )}
                   </motion.div>
                 </form>
               );
