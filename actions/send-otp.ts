@@ -112,3 +112,4 @@ export async function VerifyOTP({ otp, number }: { otp: string; number: string }
     return { success: false, data: "Unexpected server error." };
   }
 }
+

@@ -26,6 +26,9 @@ import Image from "next/image";
 import { toast } from "react-toastify";
 import Link from "next/link";
 import Loader from "../Loader";
+import { supabase } from "@/lib/supabase";
+import { ProcessImageOCR } from "@/actions/optical-character-recognition";
+import { metadata } from "framer-motion/client";
 
 interface FormData {
   phoneNumber: string;
@@ -190,13 +193,51 @@ const VerificationForm = () => {
     }
   };
 
-  const handleFileUpload = (
+  const handleFileUpload = async (
     type: "idCard" | "selfie",
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = e.target.files?.[0];
     if (file) {
       setFormData((prev) => ({ ...prev, [type]: file }));
+      const { error: uploadError } = await supabase.storage
+        .from(`${type === "selfie" ? "selfie" : "idcards"}`)
+        .upload(`${file.name}`, file);
+
+      console.log("Filename: ", file.name);
+      const { data } = supabase.storage
+        .from(`${type === "selfie" ? "selfie" : "idcards"}`)
+        .getPublicUrl(`${file.name}`);
+
+      // This function should be utils
+      function removeLeadingZero(num: string) {
+        return num.startsWith("0") ? num.slice(1) : num;
+      }
+      const formattedNumber = removeLeadingZero(
+        formData.phoneNumber
+      ).startsWith("232")
+        ? formData.phoneNumber
+        : "232" + removeLeadingZero(formData.phoneNumber);
+      const { data: idData } = await supabase
+        .from("verification_applicants")
+        .select("id")
+        .eq("phoneNumber", formattedNumber)
+        .single();
+
+      if (type === "selfie") {
+        const { error: urlError, data: urlData } = await supabase
+          .from("verification_applicants")
+          .update({ selfieUrl: data.publicUrl })
+          .eq("id", idData?.id);
+        console.log("Url Error: ", urlError, urlData);
+      } else if (type === "idCard") {
+        const { error: urlError, data: urlData } = await supabase
+          .from("verification_applicants")
+          .update({ idCardUrl: data.publicUrl })
+          .eq("id", idData?.id);
+        console.log("Url Error: ", urlError, urlData);
+      }
+
       const url = URL.createObjectURL(file);
       setPreviewUrls((prev) => ({ ...prev, [type]: url }));
       handleNext();
@@ -262,6 +303,43 @@ const VerificationForm = () => {
     </div>
   );
 
+  const handleSubmit = async () => {
+    try {
+      // This function should be utils
+      function removeLeadingZero(num: string) {
+        return num.startsWith("0") ? num.slice(1) : num;
+      }
+      const formattedNumber = removeLeadingZero(
+        formData.phoneNumber
+      ).startsWith("232")
+        ? formData.phoneNumber
+        : "232" + removeLeadingZero(formData.phoneNumber);
+      const { data } = await supabase
+        .from("verification_applicants")
+        .select("idCardUrl, id")
+        .eq("phoneNumber", formattedNumber)
+        .single();
+      const responseFromOCR = await ProcessImageOCR({
+        input: data?.idCardUrl,
+      });
+
+      await supabase
+        .from("verification_applicants")
+        .update({ metadata: responseFromOCR.data.structuredData })
+        .eq("id", data?.id);
+
+      setFormData({
+        phoneNumber: "",
+        otp: "",
+        idCard: null,
+        selfie: null,
+      });
+      setPreviewUrls({ idCard: null, selfie: null });
+      setCurrentStep(1);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const pageVariants = {
     initial: {
       opacity: 0,
@@ -516,7 +594,7 @@ const VerificationForm = () => {
                     whileTap={{ scale: 0.98 }}
                   >
                     <Button
-                      onClick={() => console.log("Submit verification")}
+                      onClick={() => handleSubmit()}
                       className="w-full bg-[#F78F1E] hover:bg-[#E67D0E] text-white"
                     >
                       Submit Verification
