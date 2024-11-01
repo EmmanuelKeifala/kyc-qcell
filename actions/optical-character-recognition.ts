@@ -1,3 +1,4 @@
+import { OCRAIFormatter } from "./format-ocr-blob";
 
 /**
  * Process an image for OCR via OCR API
@@ -11,8 +12,8 @@ export async function ProcessImageOCR({
   input,
   language = 'eng',
   isOverlayRequired = true,
-  retryCount = 3, // Number of retries
-  retryDelay = 1000 // Delay between retries in milliseconds
+  retryCount = 3,
+  retryDelay = 1000
 }: {
   input: File | string;
   language?: string;
@@ -43,24 +44,32 @@ export async function ProcessImageOCR({
         const responseD = await response.json();
         console.log(responseD);
         if (response.status === 403) {
-          // If we get a 403 error, we might want to wait and retry
           console.log('403 Forbidden: Exceeded concurrent connections. Retrying...');
-          await new Promise(resolve => setTimeout(resolve, retryDelay)); // Wait before retrying
-          continue; // Retry the request
+          await new Promise(resolve => setTimeout(resolve, retryDelay));
+          continue;
         }
         return { success: false, data: `HTTP error! Status: ${response.status}` };
       }
 
       const result = await response.json();
-      console.log("result: ", result);
-      return parseOcrResult(result);
+      const paresed = parseOcrResult(result);
+      // Check if paresed.data exists and is defined
+      if (paresed && paresed.data) {
+        const aiformatted = await OCRAIFormatter({ dataInput: paresed.data.structuredData });
+        return { success: true, data: aiformatted.data };
+      } else {
+        console.error("Parsed data is undefined or empty:", paresed);
+        return { success: false, data: "Parsed data is undefined or empty" };
+      }
+
     } catch (error: any) {
-      console.log(error);
+      console.log("Error:", error);
       return { success: false, data: `Unexpected server error: ${error.message}` };
     }
   }
   return { success: false, data: 'Max retries exceeded.' };
 }
+
 
 
 /**

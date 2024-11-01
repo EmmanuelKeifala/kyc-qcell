@@ -325,7 +325,7 @@ const VerificationForm = () => {
 
       await supabase
         .from("verification_applicants")
-        .update({ metadata: responseFromOCR.data.structuredData })
+        .update({ metadata: responseFromOCR.data })
         .eq("id", data?.id);
 
       setFormData({
