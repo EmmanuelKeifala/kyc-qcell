@@ -24,11 +24,11 @@ import {
 } from "@/components/ui/select";
 
 const colors = {
-  verified: "#2DD4BF",
-  unverified: "#818CF8",
-  background: "#F8FAFC",
-  text: "#1E293B",
-  grid: "#E2E8F0",
+  verified: "#F78F1E", // Original base color for verified (warm, bold)
+  unverified: "#FFB94D", // Lighter, more muted shade for unverified (subtle contrast)
+  background: "#F8FAFC", // Light gray background for contrast
+  text: "#1E293B", // Dark blue-gray text for legibility
+  grid: "#E2E8F0", // Light, soft grid lines
 };
 
 const userData: any = {

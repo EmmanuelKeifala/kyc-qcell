@@ -19,8 +19,8 @@ import { Button } from "@/components/ui/button";
 
 // Color palette for consistency
 const colors = {
-  primary: "#2DD4BF", // Teal for average time
-  secondary: "#818CF8", // Purple for max time
+  primary: "#F78F1E", // Teal for average time
+  secondary: "#F9C979", // Purple for max time
   background: "#F8FAFC",
   text: "#1E293B",
   grid: "#E2E8F0",

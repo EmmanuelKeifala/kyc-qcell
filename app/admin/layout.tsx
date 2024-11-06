@@ -1,6 +1,6 @@
 // import Navbar from "@/components/Navbar";
 import Menu from "@/components/Menu";
-import { AppWindowMacIcon } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -18,7 +18,13 @@ export default function DashboardLayout({
           href={"/"}
           className="flex flex-col items-center gap-2 justify-center lg:justify-start"
         >
-          <AppWindowMacIcon className="w-[70%] h-[70%]" />
+          <Image
+            src="/logo.jpg"
+            width={100}
+            height={100}
+            alt="Qcell Logo"
+            className="w-[30%] h-[30%]"
+          />
         </Link>
 
         <Menu />

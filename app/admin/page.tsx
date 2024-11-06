@@ -3,7 +3,9 @@ import Barcharts from "@/components/charts/Barcharts";
 import LineChartView from "@/components/charts/LineChart";
 import PiechartView from "@/components/charts/Piechart";
 import ScatterChartView from "@/components/charts/ScatterChart";
+import MapWithClusters from "@/components/Map";
 import StatCard from "@/components/StatCard";
+import { userLocations } from "@/constants/mockData";
 const AdminPage = () => {
   return (
     <div className="p-4 flex flex-col gap-4 md:flex-row">
@@ -54,7 +56,9 @@ const AdminPage = () => {
 
           {/* MAP With locations */}
           <div className="w-full  rounded-lg shadow-md overflow-hidden">
-            <div className="h-full p-4">{/* Your Map Component */}</div>
+            <div className="h-full p-4">
+              <MapWithClusters userLocations={userLocations} />
+            </div>
           </div>
         </div>
       </div>
