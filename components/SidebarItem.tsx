@@ -22,7 +22,7 @@ export const SidebarItem = ({
   const router = useRouter();
 
   const isActive =
-    href === "/dashboard" ? pathname === href : pathname.startsWith(href);
+    href === "/admin" ? pathname === href : pathname.startsWith(href);
 
   const onClick = () => {
     router.push(href);
