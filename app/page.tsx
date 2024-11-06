@@ -1,21 +1,23 @@
 "use client";
+import AdminLoginModal from "@/components/AdminLogin";
 import AnimatedArrow from "@/components/AnimatedArrow";
 import StepCard from "@/components/StepCard";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import Link from "next/link";
-
 const containerVariants = {
   visible: { transition: { staggerChildren: 0.5 } },
   hidden: {},
 };
 
-export default function Home() {
+export default function Home({ searchParams }: SearchParamProps) {
+  const isAdmin = searchParams.admin === "true";
   return (
     <div className="relative">
+      {isAdmin && <AdminLoginModal />}
       <div className="absolute z-[-1] bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_80%)]"></div>
 
-      <div className="min-h-screen flex flex-col items-center pt-32 relative z-[10]">
+      <div className="min-h-screen flex flex-col items-center pt-28 relative z-[10]">
         <h1 className="bg-gradient-to-r text-center from-gray-600 font-bold text-6xl to-gray-900 inline-block text-transparent bg-clip-text">
           Get Verified, <br />
           Secure Your{" "}
@@ -30,10 +32,18 @@ export default function Home() {
           <span className="text-[#F78F1E] font-bold">Qcell’s</span> services.
         </p>
 
-        <div className=" bg-[#8d5f2e] p-2 rounded-lg ">
-          <Link href="/getVerified">
+        <div className="p-2 rounded-lg flex gap-5 ">
+          <Link href="/getVerified" className="bg-[#8d5f2e] p-2 rounded-md">
             <Button type="button" variant={"link"} className="text-white">
               Get Started
+            </Button>
+          </Link>
+          <Link
+            href={"/?admin=true"}
+            className="text-white bg-[#8d5f2e] p-2 rounded-md"
+          >
+            <Button type="button" variant={"link"} className="text-white">
+              Dashboard
             </Button>
           </Link>
         </div>
