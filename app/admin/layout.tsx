@@ -13,7 +13,7 @@ export default function DashboardLayout({
   return (
     <div className="h-screen flex overflow-hidden">
       {/* LEFT (Sidebar) */}
-      <div className="w-[18%] md:w-[10%] lg:w-[19%] xl:w-[18%] p-4 flex-shrink-0 overflow-y-auto scrollbar-hide bg-bgSecondary">
+      <div className="w-[18%] md:w-[10%] lg:w-[19%] xl:w-[18%] p-4 flex-shrink-0 overflow-y-auto scrollbar-hide bg-[#dacbbc]">
         <Link
           href={"/"}
           className="flex flex-col items-center gap-2 justify-center lg:justify-start"
