@@ -110,10 +110,11 @@ const CustomerTable: React.FC<{ data: DataType[] }> = ({ data }) => {
     setVerificationData(updatedData);
     message.success(`Status updated to "${status}"`);
 
-    await UpdateCustomerStatus({
+    const data = await UpdateCustomerStatus({
       phoneNumber: record.phoneNumber,
       status: status,
     });
+    console.log(data?.data);
   };
 
   const columns: Array<TableColumnType<DataType>> = [

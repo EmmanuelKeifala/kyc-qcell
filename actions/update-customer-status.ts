@@ -18,7 +18,7 @@ export async function UpdateCustomerStatus({
     if (updateError) {
       return { success: false, data: "Failed to update status" };
     }
-    const message = `You status have been updated to ${status}`;
+    const message = `Your status have been updated to ${status}`;
     // Send OTP through external service
     const params = new URLSearchParams();
     params.append("username", process.env.NAME!);
