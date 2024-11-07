@@ -6,6 +6,7 @@ import type { InputRef, TableColumnType } from "antd";
 import type { FilterDropdownProps } from "antd/es/table/interface";
 import Highlighter from "react-highlight-words";
 import { DataType } from "@/types";
+import { UpdateCustomerStatus } from "@/actions/update-customer-status";
 
 type DataIndex = keyof DataType;
 
@@ -100,7 +101,7 @@ const CustomerTable: React.FC<{ data: DataType[] }> = ({ data }) => {
   });
 
   // Handle status change
-  const handleStatusChange = (status: string, record: DataType) => {
+  const handleStatusChange = async (status: string, record: DataType) => {
     const updatedData = verificationData.map((item) =>
       item.phoneNumber === record.phoneNumber
         ? { ...item, verificationStatus: status }
@@ -108,6 +109,11 @@ const CustomerTable: React.FC<{ data: DataType[] }> = ({ data }) => {
     );
     setVerificationData(updatedData);
     message.success(`Status updated to "${status}"`);
+
+    await UpdateCustomerStatus({
+      phoneNumber: record.phoneNumber,
+      status: status,
+    });
   };
 
   const columns: Array<TableColumnType<DataType>> = [
