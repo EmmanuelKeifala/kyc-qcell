@@ -7,8 +7,9 @@ import { useFetchVerificationApplicantsFlagged } from "@/hooks/useCustomerData";
 import CustomerTable from "./_components/Table";
 
 function FlaggedUsers() {
-  const { applicants, loading, error } =
-    useFetchVerificationApplicantsFlagged();
+  const { applicants, loading, error } = useFetchVerificationApplicantsFlagged({
+    query: "flagged",
+  });
 
   return (
     <div className="p-4">

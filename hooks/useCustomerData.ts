@@ -1,10 +1,15 @@
-"use client"
-import { supabase } from '@/lib/supabase';
-import { DataType } from '@/types';
-import { useEffect, useState } from 'react';
+"use client";
+import { supabase } from "@/lib/supabase";
+import { DataType } from "@/types";
+import { useEffect, useState } from "react";
 
+type UseFetchVerificationApplicantsFlaggedProps = {
+  query?: string;
+};
 
-export const useFetchVerificationApplicantsFlagged = () => {
+export const useFetchVerificationApplicantsFlagged = ({
+  query,
+}: UseFetchVerificationApplicantsFlaggedProps) => {
   const [applicants, setApplicants] = useState<DataType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -15,14 +20,22 @@ export const useFetchVerificationApplicantsFlagged = () => {
       setError(null);
 
       try {
-        const { data, error } = await supabase
-          .from('verification_applicants')
-          .select('*');
-// .eq("verificationStatus","flagged")
+        if (query) {
+          const { data, error } = await supabase
+            .from("verification_applicants")
+            .select("*")
+            .eq("verificationStatus", query);
+          if (error) throw error;
 
-        if (error) throw error;
+          setApplicants(data || []);
+        } else {
+          const { data, error } = await supabase
+            .from("verification_applicants")
+            .select("*");
+          if (error) throw error;
 
-        setApplicants(data || []);
+          setApplicants(data || []);
+        }
       } catch (error: any) {
         setError(error.message);
       } finally {
