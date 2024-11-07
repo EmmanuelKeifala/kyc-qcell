@@ -1,12 +1,18 @@
 "use client";
 import React, { useRef, useState } from "react";
-import { SearchOutlined, DownOutlined } from "@ant-design/icons";
+import {
+  SearchOutlined,
+  DownOutlined,
+  DownloadOutlined,
+} from "@ant-design/icons";
 import { Button, Input, Space, Table, Dropdown, Menu, message } from "antd";
 import type { InputRef, TableColumnType } from "antd";
 import type { FilterDropdownProps } from "antd/es/table/interface";
 import Highlighter from "react-highlight-words";
 import { DataType } from "@/types";
 import { UpdateCustomerStatus } from "@/actions/update-customer-status";
+import * as XLSX from "xlsx";
+import { Button as ShadButton } from "@/components/ui/button";
 
 type DataIndex = keyof DataType;
 
@@ -15,6 +21,35 @@ const CustomerTable: React.FC<{ data: DataType[] }> = ({ data }) => {
   const [searchedColumn, setSearchedColumn] = useState<DataIndex | "">("");
   const [verificationData, setVerificationData] = useState<any[]>(data);
   const searchInput = useRef<InputRef>(null);
+
+  const handleExport = () => {
+    // Prepare data for export
+    const exportData = verificationData.map((item) => ({
+      "Phone Number": item.phoneNumber,
+      Status: item.verificationStatus,
+      "First Name": item.metadata.firstName,
+      "Middle Name": item.metadata.middleName,
+      "Date of Birth": item.metadata.dateOfBirth,
+      "Personal ID": item.metadata.personalIdNumber,
+      "Selfie URL": item.selfieUrl,
+      "ID Card URL": item.idCardUrl,
+    }));
+
+    // Create worksheet
+    const ws = XLSX.utils.json_to_sheet(exportData);
+
+    // Create workbook
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Customer Data");
+
+    // Generate file name with current date
+    const date = new Date().toISOString().split("T")[0];
+    const fileName = `customer_data_${date}.xlsx`;
+
+    // Save file
+    XLSX.writeFile(wb, fileName);
+    message.success("Export successful!");
+  };
 
   const handleSearch = (
     selectedKeys: string[],
@@ -114,7 +149,6 @@ const CustomerTable: React.FC<{ data: DataType[] }> = ({ data }) => {
       phoneNumber: record.phoneNumber,
       status: status,
     });
-    console.log(data?.data);
   };
 
   const columns: Array<TableColumnType<DataType>> = [
@@ -201,6 +235,12 @@ const CustomerTable: React.FC<{ data: DataType[] }> = ({ data }) => {
 
   return (
     <>
+      <div style={{ marginBottom: 16 }} className="flex items-end justify-end">
+        <ShadButton onClick={handleExport} className="bg-[#F78F1E]">
+          <p className="text-white font-semibold">Export to Excel</p>
+          <DownloadOutlined />
+        </ShadButton>
+      </div>
       <Table
         columns={columns}
         dataSource={verificationData}

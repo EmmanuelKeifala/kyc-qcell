@@ -38,8 +38,6 @@ export async function UpdateCustomerStatus({
 
     const data = await response.json();
 
-    console.log({ data });
-
     if (data.status !== "success") {
       return { success: false, data: "Failed to send update message." };
     }
