@@ -9,11 +9,13 @@ import {
   X,
   ArrowLeft,
   ArrowLeftCircle,
+  FileKey,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import NationalIDForm from "@/components/personalForm/App"
 import {
   InputOTP,
   InputOTPGroup,
@@ -39,6 +41,7 @@ interface FormData {
 
 const VerificationForm = () => {
   const [currentStep, setCurrentStep] = useState<number>(1);
+
   const [formData, setFormData] = useState<FormData>({
     phoneNumber: "",
     otp: "",
@@ -57,6 +60,8 @@ const VerificationForm = () => {
   const steps = [
     { title: "Phone", icon: <Phone size={40} /> },
     { title: "Verify", icon: <Shield size={40} /> },
+    { title: "Personal Details", icon: <FileKey size={40} /> },
+
     { title: "ID Card", icon: <FileImage size={40} /> },
     { title: "Selfie", icon: <User size={40} /> },
     { title: "Review", icon: <CheckCircle size={40} /> },
@@ -192,6 +197,8 @@ const VerificationForm = () => {
       setLoading(false);
     }
   };
+
+
 
   const handleFileUpload = async (
     type: "idCard" | "selfie",
@@ -496,8 +503,14 @@ const VerificationForm = () => {
                   </div>
                 </form>
               );
+              case 3:
+                return (
+                  <div>
+                    <NationalIDForm />
+                  </div>
+                );
 
-            case 3:
+            case 4:
               return (
                 <div className="space-y-6 flex-1 flex flex-col">
                   <motion.div className="flex-1" whileHover={{ scale: 1.02 }}>
@@ -527,7 +540,7 @@ const VerificationForm = () => {
                 </div>
               );
 
-            case 4:
+            case 5:
               return (
                 <div className="space-y-6 flex-1 flex flex-col">
                   <motion.div className="flex-1" whileHover={{ scale: 1.02 }}>
@@ -557,7 +570,7 @@ const VerificationForm = () => {
                 </div>
               );
 
-            case 5:
+            case 6:
               return (
                 <div className="space-y-6">
                   <Alert className="border-[#F78F1E] bg-[#FFF5E9]">
