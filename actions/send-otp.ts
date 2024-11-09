@@ -1,13 +1,12 @@
 "use server";
 import { supabase } from "@/lib/supabase";
+import { removeLeadingZero } from "@/lib/utils";
 
 const TEST = "1"; // Set to "1" for testing mode
 
 export async function SendOTP({ number }: { number: string }) {
   try {
-    function removeLeadingZero(num: string) {
-      return num.startsWith("0") ? num.slice(1) : num;
-    }
+   
 
     const formattedNumber = removeLeadingZero(number).startsWith("232")
       ? number
@@ -80,16 +79,11 @@ export async function SendOTP({ number }: { number: string }) {
 
 export async function VerifyOTP({ otp, number }: { otp: string; number: string }) {
   try {
-    // Helper to remove leading zero
-    function removeLeadingZero(num: string) {
-      return num.startsWith("0") ? num.slice(1) : num;
-    }
 
     const formattedNumber = removeLeadingZero(number).startsWith("232")
       ? number
       : "232" + removeLeadingZero(number);
 
-    // Retrieve OTP from database
     const { data, error } = await supabase
       .from("verification_applicants")
       .select("otp")

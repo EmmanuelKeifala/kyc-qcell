@@ -7,15 +7,13 @@ import {
   Shield,
   FileImage,
   X,
-  ArrowLeft,
   ArrowLeftCircle,
   FileKey,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import NationalIDForm from "@/components/personalForm/App"
+import NationalIDForm from "@/components/personalForm/NationalIDForm";
 import {
   InputOTP,
   InputOTPGroup,
@@ -31,6 +29,7 @@ import Loader from "../Loader";
 import { supabase } from "@/lib/supabase";
 import { ProcessImageOCR } from "@/actions/optical-character-recognition";
 import { metadata } from "framer-motion/client";
+import { removeLeadingZero } from "@/lib/utils";
 
 interface FormData {
   phoneNumber: string;
@@ -198,8 +197,6 @@ const VerificationForm = () => {
     }
   };
 
-
-
   const handleFileUpload = async (
     type: "idCard" | "selfie",
     e: React.ChangeEvent<HTMLInputElement>
@@ -217,9 +214,7 @@ const VerificationForm = () => {
         .getPublicUrl(`${file.name}`);
 
       // This function should be utils
-      function removeLeadingZero(num: string) {
-        return num.startsWith("0") ? num.slice(1) : num;
-      }
+
       const formattedNumber = removeLeadingZero(
         formData.phoneNumber
       ).startsWith("232")
@@ -312,10 +307,6 @@ const VerificationForm = () => {
 
   const handleSubmit = async () => {
     try {
-      // This function should be utils
-      function removeLeadingZero(num: string) {
-        return num.startsWith("0") ? num.slice(1) : num;
-      }
       const formattedNumber = removeLeadingZero(
         formData.phoneNumber
       ).startsWith("232")
@@ -503,12 +494,12 @@ const VerificationForm = () => {
                   </div>
                 </form>
               );
-              case 3:
-                return (
-                  <div>
-                    <NationalIDForm />
-                  </div>
-                );
+            case 3:
+              return (
+                <div>
+                  <NationalIDForm />
+                </div>
+              );
 
             case 4:
               return (
