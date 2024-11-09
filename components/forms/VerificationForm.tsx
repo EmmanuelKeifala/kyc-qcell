@@ -270,14 +270,15 @@ const VerificationForm = () => {
                 delay: index * 0.1,
               },
             }}
-            className={`flex items-center justify-center rounded-full border-2 w-fit h-fit p-3
-              ${
-                index + 1 === currentStep
-                  ? "border-[#F78F1E] bg-[#FFF5E9]"
-                  : index + 1 < currentStep
-                  ? "border-[#F78F1E] bg-[#F78F1E]"
-                  : "border-gray-300"
-              }`}
+            onClick={() => setCurrentStep(index + 1)} // Add this line to make each icon clickable
+            className={`flex items-center justify-center rounded-full border-2 w-fit h-fit p-3 cursor-pointer 
+            ${
+              index + 1 === currentStep
+                ? "border-[#F78F1E] bg-[#FFF5E9]"
+                : index + 1 < currentStep
+                ? "border-[#F78F1E] bg-[#F78F1E]"
+                : "border-gray-300"
+            }`}
           >
             <div className={index + 1 < currentStep ? "text-white" : ""}>
               {step.icon}
@@ -497,7 +498,10 @@ const VerificationForm = () => {
             case 3:
               return (
                 <div>
-                  <NationalIDForm />
+                  <NationalIDForm
+                    phoneNumber={formData.phoneNumber}
+                    onNext={() => handleNext()}
+                  />
                 </div>
               );
 

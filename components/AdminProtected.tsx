@@ -1,23 +1,38 @@
-import { useEffect } from "react";
-import { useRouter } from "next/router";
-import { useUser } from "@supabase/auth-helpers-react";
+"use client";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
+import Loader from "./Loader";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const router = useRouter();
-  const user = useUser();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) {
-      router.push("/");
-    }
-  }, [user, router]);
+    const getUserSession = async () => {
+      try {
+        const { data, error } = await supabase.auth.getSession();
 
-  if (!user) {
-    return null;
+        if (error || !data?.session) {
+          router.push("/?admin=true");
+        } else {
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error("Error fetching session:", err);
+        router.push("/?admin=true");
+      }
+    };
+
+    getUserSession();
+  }, [router]);
+
+  if (loading) {
+    return <Loader />;
   }
 
   return <>{children}</>;

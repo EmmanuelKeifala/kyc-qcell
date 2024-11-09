@@ -67,6 +67,9 @@ const AdminLoginModal = () => {
       return;
     }
 
+    const { data: session } = await supabase.auth.getSession();
+    console.log(session);
+
     toast.success("Login was successful", {
       position: "top-center",
       autoClose: 5000,

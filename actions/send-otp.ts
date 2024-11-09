@@ -6,8 +6,6 @@ const TEST = "1"; // Set to "1" for testing mode
 
 export async function SendOTP({ number }: { number: string }) {
   try {
-   
-
     const formattedNumber = removeLeadingZero(number).startsWith("232")
       ? number
       : "232" + removeLeadingZero(number);
@@ -20,12 +18,17 @@ export async function SendOTP({ number }: { number: string }) {
 
     if (fetchError && fetchError.code !== "PGRST116") {
       console.log(fetchError);
-      return { success: false, data: "Database error: unable to retrieve user" };
+      return {
+        success: false,
+        data: "Database error: unable to retrieve user",
+      };
     }
 
     // Generate a new OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const message = encodeURIComponent(`Your OTP is ${otp}. Please do not share it with anyone.`);
+    const message = encodeURIComponent(
+      `Your OTP is ${otp}. Please do not share it with anyone.`
+    );
 
     // Insert or update the OTP for the user
     let otpError;
@@ -77,9 +80,14 @@ export async function SendOTP({ number }: { number: string }) {
   }
 }
 
-export async function VerifyOTP({ otp, number }: { otp: string; number: string }) {
+export async function VerifyOTP({
+  otp,
+  number,
+}: {
+  otp: string;
+  number: string;
+}) {
   try {
-
     const formattedNumber = removeLeadingZero(number).startsWith("232")
       ? number
       : "232" + removeLeadingZero(number);
@@ -106,4 +114,3 @@ export async function VerifyOTP({ otp, number }: { otp: string; number: string }
     return { success: false, data: "Unexpected server error." };
   }
 }
-

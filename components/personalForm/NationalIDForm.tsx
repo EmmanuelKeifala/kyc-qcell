@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,6 +21,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { z } from "zod";
+import { supabase } from "@/lib/supabase";
+import { removeLeadingZero } from "@/lib/utils";
+import { toast } from "react-toastify";
+import Loader from "../Loader";
 
 const formSchema = z.object({
   surname: z
@@ -41,7 +45,14 @@ const formSchema = z.object({
   dateOfExpiry: z.string().min(1, "Date of expiry is required"),
 });
 
-const NationalIDForm = () => {
+const NationalIDForm = ({
+  phoneNumber,
+  onNext,
+}: {
+  phoneNumber: string;
+  onNext: any;
+}) => {
+  const [loading, setLoading] = useState<boolean>(false);
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -56,8 +67,55 @@ const NationalIDForm = () => {
     },
   });
 
-  const onSubmit = (data) => {
-    console.log("Form submitted:", data);
+  const onSubmit = async (formData: any) => {
+    setLoading(true);
+    try {
+      const formattedNumber = removeLeadingZero(phoneNumber).startsWith("232")
+        ? phoneNumber
+        : "232" + removeLeadingZero(phoneNumber);
+
+      const { data } = await supabase
+        .from("verification_applicants")
+        .select("id")
+        .eq("phoneNumber", formattedNumber)
+        .single();
+
+      const { error: personalDetailError } = await supabase
+        .from("verification_applicants")
+        .update({ personal_detail: formData })
+        .eq("id", data?.id);
+
+      if (personalDetailError) {
+        toast.error(personalDetailError?.message, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+        setLoading(false);
+        return;
+      }
+
+      onNext();
+    } catch (error) {
+      console.log(error);
+      toast.error("Something Went Wrong", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -130,8 +188,8 @@ const NationalIDForm = () => {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="M">Male</SelectItem>
-                          <SelectItem value="F">Female</SelectItem>
+                          <SelectItem value="male">Male</SelectItem>
+                          <SelectItem value="female">Female</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -206,12 +264,16 @@ const NationalIDForm = () => {
                 whileTap={{ scale: 0.99 }}
                 className="pt-4"
               >
-                <Button
-                  type="submit"
-                  className="w-full bg-[#F78F1E] hover:bg-[#E67D0E] text-white"
-                >
-                  Submit
-                </Button>
+                {!loading ? (
+                  <Button
+                    type="submit"
+                    className="bg-[#F78F1E] hover:bg-[#E67D0E] text-white w-full"
+                  >
+                    Submit
+                  </Button>
+                ) : (
+                  <Loader />
+                )}
               </motion.div>
             </form>
           </Form>
