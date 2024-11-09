@@ -1,6 +1,7 @@
 // import Navbar from "@/components/Navbar";
 import AdminProtected from "@/components/AdminProtected";
 import Menu from "@/components/Menu";
+import Nav from "@/components/Nav";
 import Image from "next/image";
 import Link from "next/link";
 import { ToastContainer } from "react-toastify";
@@ -34,6 +35,7 @@ export default function DashboardLayout({
 
         <div className="flex-1 flex flex-col bg-white overflow-hidden scrollbar-hide">
           <div className="flex-1 overflow-y-auto scrollbar-hide">
+            <Nav />
             {children}
           </div>
         </div>

@@ -32,7 +32,11 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }, [router]);
 
   if (loading) {
-    return <Loader />;
+    return (
+      <div className="w-full h-full justify-center items-center">
+        <Loader />;
+      </div>
+    );
   }
 
   return <>{children}</>;
