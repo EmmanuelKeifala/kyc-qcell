@@ -361,41 +361,16 @@ const VerificationForm = () => {
       )}
     </div>
   );
-
   const renderStepIndicator = () => (
-    <div className="flex justify-center mb-8">
-      {steps.map((step, index) => (
-        <div key={step.title} className="flex items-center">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{
-              scale: 1,
-              opacity: 1,
-              transition: {
-                type: "spring",
-                stiffness: 300,
-                damping: 20,
-                delay: index * 0.1,
-              },
-            }}
-            className={`flex items-center justify-center rounded-full border-2 w-fit h-fit p-3 cursor-pointer 
-              ${
-                index + 1 === currentStep
-                  ? "border-[#F78F1E] bg-[#FFF5E9]"
-                  : index + 1 < currentStep
-                  ? "border-[#F78F1E] bg-[#F78F1E]"
-                  : "border-gray-300"
-              }`}
-          >
-            <div className={index + 1 < currentStep ? "text-white" : ""}>
-              {step.icon}
-            </div>
-          </motion.div>
-          {index < steps.length - 1 && (
+    <div className="flex justify-center mb-4 md:mb-8 overflow-x-auto px-2 md:px-0">
+      <div className="flex items-center min-w-fit">
+        {steps.map((step, index) => (
+          <div key={step.title} className="flex items-center">
             <motion.div
-              initial={{ scaleX: 0 }}
+              initial={{ scale: 0.8, opacity: 0 }}
               animate={{
-                scaleX: 1,
+                scale: 1,
+                opacity: 1,
                 transition: {
                   type: "spring",
                   stiffness: 300,
@@ -403,13 +378,45 @@ const VerificationForm = () => {
                   delay: index * 0.1,
                 },
               }}
-              className={`w-12 h-1 ${
-                index + 1 < currentStep ? "bg-[#F78F1E]" : "bg-gray-300"
-              }`}
-            />
-          )}
-        </div>
-      ))}
+              className={`flex items-center justify-center rounded-full border-2 
+                ${
+                  index + 1 === currentStep
+                    ? "border-[#F78F1E] bg-[#FFF5E9]"
+                    : index + 1 < currentStep
+                    ? "border-[#F78F1E] bg-[#F78F1E]"
+                    : "border-gray-300"
+                }
+                w-8 h-8 md:w-12 md:h-12 p-4 md:p-3 cursor-pointer text-sm md:text-base
+              `}
+            >
+              <div
+                className={`${
+                  index + 1 < currentStep ? "text-white" : ""
+                } scale-75 md:scale-100 p-4 m-4`}
+              >
+                {step.icon}
+              </div>
+            </motion.div>
+            {index < steps.length - 1 && (
+              <motion.div
+                initial={{ scaleX: 0 }}
+                animate={{
+                  scaleX: 1,
+                  transition: {
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 20,
+                    delay: index * 0.1,
+                  },
+                }}
+                className={`w-6 md:w-12 h-0.5 md:h-1 ${
+                  index + 1 < currentStep ? "bg-[#F78F1E]" : "bg-gray-300"
+                }`}
+              />
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 
@@ -421,7 +428,7 @@ const VerificationForm = () => {
         initial="initial"
         animate="animate"
         exit="exit"
-        className="min-h-[300px] flex flex-col"
+        className="min-h-[250px] md:min-h-[300px] flex flex-col"
       >
         {(() => {
           switch (currentStep) {
@@ -429,33 +436,64 @@ const VerificationForm = () => {
               return (
                 <form
                   onSubmit={handlePhoneSubmit}
-                  className="space-y-6 flex-1 flex flex-col"
+                  className="space-y-4 md:space-y-6 flex-1 flex flex-col"
                 >
                   <div className="space-y-2 flex-1">
-                    <label className="text-16-semibold">Phone Number</label>
-                    <InputOTP
-                      maxLength={10}
-                      value={formData.phoneNumber}
-                      onChange={(value) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          phoneNumber: value,
-                        }))
-                      }
-                    >
-                      <InputOTPGroup className="shad-otp">
-                        <InputOTPSlot index={0} className="shad-otp-slot" />
-                        <InputOTPSlot index={1} className="shad-otp-slot" />
-                        <InputOTPSlot index={2} className="shad-otp-slot" />
-                        <InputOTPSeparator />
-                        <InputOTPSlot index={3} className="shad-otp-slot" />
-                        <InputOTPSlot index={4} className="shad-otp-slot" />
-                        <InputOTPSlot index={5} className="shad-otp-slot" />
-                        <InputOTPSlot index={6} className="shad-otp-slot" />
-                        <InputOTPSlot index={7} className="shad-otp-slot" />
-                        <InputOTPSlot index={8} className="shad-otp-slot" />
-                      </InputOTPGroup>
-                    </InputOTP>
+                    <label className="text-sm md:text-base font-semibold">
+                      Phone Number
+                    </label>
+                    <div className="max-w-full overflow-x-auto">
+                      <InputOTP
+                        maxLength={10}
+                        value={formData.phoneNumber}
+                        onChange={(value) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            phoneNumber: value,
+                          }))
+                        }
+                      >
+                        <InputOTPGroup className="shad-otp gap-1 md:gap-2">
+                          <InputOTPSlot
+                            index={0}
+                            className="shad-otp-slot !w-8 md:!w-10 !h-10 md:!h-12"
+                          />
+                          <InputOTPSlot
+                            index={1}
+                            className="shad-otp-slot !w-8 md:!w-10 !h-10 md:!h-12"
+                          />
+                          <InputOTPSlot
+                            index={2}
+                            className="shad-otp-slot !w-8 md:!w-10 !h-10 md:!h-12"
+                          />
+                          <InputOTPSeparator />
+                          <InputOTPSlot
+                            index={3}
+                            className="shad-otp-slot !w-8 md:!w-10 !h-10 md:!h-12"
+                          />
+                          <InputOTPSlot
+                            index={4}
+                            className="shad-otp-slot !w-8 md:!w-10 !h-10 md:!h-12"
+                          />
+                          <InputOTPSlot
+                            index={5}
+                            className="shad-otp-slot !w-8 md:!w-10 !h-10 md:!h-12"
+                          />
+                          <InputOTPSlot
+                            index={6}
+                            className="shad-otp-slot !w-8 md:!w-10 !h-10 md:!h-12"
+                          />
+                          <InputOTPSlot
+                            index={7}
+                            className="shad-otp-slot !w-8 md:!w-10 !h-10 md:!h-12"
+                          />
+                          <InputOTPSlot
+                            index={8}
+                            className="shad-otp-slot !w-8 md:!w-10 !h-10 md:!h-12"
+                          />
+                        </InputOTPGroup>
+                      </InputOTP>
+                    </div>
                   </div>
                   <motion.div
                     whileHover={{ scale: 1.02 }}
@@ -464,7 +502,7 @@ const VerificationForm = () => {
                     {!loading ? (
                       <Button
                         type="submit"
-                        className="bg-[#F78F1E] hover:bg-[#E67D0E] text-white w-full"
+                        className="bg-[#F78F1E] hover:bg-[#E67D0E] text-white w-full h-10 md:h-12"
                       >
                         Send OTP
                       </Button>
@@ -479,111 +517,95 @@ const VerificationForm = () => {
               return (
                 <form
                   onSubmit={handleOTPSubmit}
-                  className="space-y-6 flex-1 flex flex-col"
+                  className="space-y-4 md:space-y-6 flex-1 flex flex-col"
                 >
                   <div className="space-y-4 flex-1">
-                    <label className="text-16-semibold">Enter OTP</label>
-                    <InputOTP
-                      maxLength={6}
-                      value={formData.otp}
-                      onChange={(value) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          otp: value,
-                        }))
-                      }
-                    >
-                      <InputOTPGroup className="shad-otp">
-                        <InputOTPSlot index={0} className="shad-otp-slot" />
-                        <InputOTPSlot index={1} className="shad-otp-slot" />
-                        <InputOTPSlot index={2} className="shad-otp-slot" />
-                        <InputOTPSeparator />
-                        <InputOTPSlot index={3} className="shad-otp-slot" />
-                        <InputOTPSlot index={4} className="shad-otp-slot" />
-                        <InputOTPSlot index={5} className="shad-otp-slot" />
-                      </InputOTPGroup>
-                    </InputOTP>
+                    <label className="text-sm md:text-base font-semibold">
+                      Enter OTP
+                    </label>
+                    <div className="max-w-full overflow-x-auto">
+                      <InputOTP
+                        maxLength={6}
+                        value={formData.otp}
+                        onChange={(value) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            otp: value,
+                          }))
+                        }
+                      >
+                        <InputOTPGroup className="shad-otp gap-1 md:gap-2">
+                          <InputOTPSlot
+                            index={0}
+                            className="shad-otp-slot !w-8 md:!w-10 !h-10 md:!h-12"
+                          />
+                          <InputOTPSlot
+                            index={1}
+                            className="shad-otp-slot !w-8 md:!w-10 !h-10 md:!h-12"
+                          />
+                          <InputOTPSlot
+                            index={2}
+                            className="shad-otp-slot !w-8 md:!w-10 !h-10 md:!h-12"
+                          />
+                          <InputOTPSeparator />
+                          <InputOTPSlot
+                            index={3}
+                            className="shad-otp-slot !w-8 md:!w-10 !h-10 md:!h-12"
+                          />
+                          <InputOTPSlot
+                            index={4}
+                            className="shad-otp-slot !w-8 md:!w-10 !h-10 md:!h-12"
+                          />
+                          <InputOTPSlot
+                            index={5}
+                            className="shad-otp-slot !w-8 md:!w-10 !h-10 md:!h-12"
+                          />
+                        </InputOTPGroup>
+                      </InputOTP>
+                    </div>
                   </div>
-                  <div className="space-y-3">
-                    <motion.div
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      {!loading ? (
-                        <Button
-                          type="submit"
-                          className="bg-[#F78F1E] hover:bg-[#E67D0E] text-white w-full"
-                        >
-                          Verify OTP
-                        </Button>
-                      ) : (
-                        <Loader />
-                      )}
-                    </motion.div>
-                  </div>
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    {!loading ? (
+                      <Button
+                        type="submit"
+                        className="bg-[#F78F1E] hover:bg-[#E67D0E] text-white w-full h-10 md:h-12"
+                      >
+                        Verify OTP
+                      </Button>
+                    ) : (
+                      <Loader />
+                    )}
+                  </motion.div>
                 </form>
-              );
-            case 3:
-              return (
-                <div>
-                  <NationalIDForm
-                    phoneNumber={formData.phoneNumber}
-                    onNext={() => handleNext()}
-                  />
-                </div>
               );
 
             case 4:
-              return (
-                <div className="space-y-6 flex-1 flex flex-col">
-                  <motion.div className="flex-1" whileHover={{ scale: 1.02 }}>
-                    {previewUrls.idCard ? (
-                      <ImagePreview type="idCard" />
-                    ) : (
-                      <div className="border-2 border-dashed border-[#F78F1E] rounded-lg p-6 text-center h-full flex flex-col items-center justify-center">
-                        <input
-                          type="file"
-                          id="idCard"
-                          className="hidden"
-                          accept="image/*"
-                          onChange={(e) => handleFileUpload("idCard", e)}
-                        />
-                        <label htmlFor="idCard" className="cursor-pointer">
-                          <Upload className="mx-auto w-12 h-12 text-[#F78F1E]" />
-                          <p className="mt-2 text-[#F78F1E] font-medium">
-                            Upload ID Card Photo
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            Click to upload or drag and drop
-                          </p>
-                        </label>
-                      </div>
-                    )}
-                  </motion.div>
-                </div>
-              );
-
             case 5:
+              const type = currentStep === 4 ? "idCard" : "selfie";
               return (
-                <div className="space-y-6 flex-1 flex flex-col">
+                <div className="space-y-4 md:space-y-6 flex-1 flex flex-col">
                   <motion.div className="flex-1" whileHover={{ scale: 1.02 }}>
-                    {previewUrls.selfie ? (
-                      <ImagePreview type="selfie" />
+                    {previewUrls[type] ? (
+                      <ImagePreview type={type} />
                     ) : (
-                      <div className="border-2 border-dashed border-[#F78F1E] rounded-lg p-6 text-center h-full flex flex-col items-center justify-center">
+                      <div className="border-2 border-dashed border-[#F78F1E] rounded-lg p-4 md:p-6 text-center h-full flex flex-col items-center justify-center">
                         <input
                           type="file"
-                          id="selfie"
+                          id={type}
                           className="hidden"
                           accept="image/*"
-                          onChange={(e) => handleFileUpload("selfie", e)}
+                          onChange={(e) => handleFileUpload(type, e)}
                         />
-                        <label htmlFor="selfie" className="cursor-pointer">
-                          <Upload className="mx-auto w-12 h-12 text-[#F78F1E]" />
-                          <p className="mt-2 text-[#F78F1E] font-medium">
-                            Upload Selfie
+                        <label htmlFor={type} className="cursor-pointer">
+                          <Upload className="mx-auto w-8 h-8 md:w-12 md:h-12 text-[#F78F1E]" />
+                          <p className="mt-2 text-[#F78F1E] font-medium text-sm md:text-base">
+                            Upload{" "}
+                            {type === "idCard" ? "ID Card Photo" : "Selfie"}
                           </p>
-                          <p className="text-sm text-gray-500">
+                          <p className="text-xs md:text-sm text-gray-500">
                             Click to upload or drag and drop
                           </p>
                         </label>
@@ -595,30 +617,34 @@ const VerificationForm = () => {
 
             case 6:
               return (
-                <div className="space-y-6">
+                <div className="space-y-4 md:space-y-6">
                   <Alert className="border-[#F78F1E] bg-[#FFF5E9]">
                     <AlertDescription>
                       <div className="space-y-4">
-                        <p>
+                        <p className="text-sm md:text-base">
                           <strong>Phone:</strong> {formData.phoneNumber}
                         </p>
                         <div>
-                          <strong>ID Card:</strong>
+                          <strong className="text-sm md:text-base">
+                            ID Card:
+                          </strong>
                           {previewUrls.idCard && (
                             <img
                               src={previewUrls.idCard}
                               alt="ID Card"
-                              className="mt-2 w-full h-48 object-contain rounded-lg"
+                              className="mt-2 w-full h-32 md:h-48 object-contain rounded-lg"
                             />
                           )}
                         </div>
                         <div>
-                          <strong>Selfie:</strong>
+                          <strong className="text-sm md:text-base">
+                            Selfie:
+                          </strong>
                           {previewUrls.selfie && (
                             <img
                               src={previewUrls.selfie}
                               alt="Selfie"
-                              className="mt-2 w-full h-48 object-contain rounded-lg"
+                              className="mt-2 w-full h-32 md:h-48 object-contain rounded-lg"
                             />
                           )}
                         </div>
@@ -632,7 +658,7 @@ const VerificationForm = () => {
                     {!loading ? (
                       <Button
                         onClick={() => handleSubmit()}
-                        className="w-full bg-[#F78F1E] hover:bg-[#E67D0E] text-white"
+                        className="w-full bg-[#F78F1E] hover:bg-[#E67D0E] text-white h-10 md:h-12"
                       >
                         Submit Verification
                       </Button>
@@ -652,34 +678,37 @@ const VerificationForm = () => {
   );
 
   return (
-    <div className="flex justify-center items-center min-h-screen py-10 px-4">
-      <Card className="w-full max-w-2xl border-[#F78F1E]/20">
-        <CardContent className="pt-6">
+    <div className="flex justify-center items-center min-h-screen py-4 md:py-10 px-2 md:px-4">
+      <Card className="w-full max-w-sm md:max-w-2xl border-[#F78F1E]/20">
+        <CardContent className="pt-4 md:pt-6">
           <motion.div className="flex items-center justify-between mb-4">
             <Link href="/">
-              <ArrowLeftCircle size={40} className="text-[#F78F1E]" />
+              <ArrowLeftCircle
+                size={32}
+                className="text-[#F78F1E] md:w-10 md:h-10"
+              />
             </Link>
             <motion.div
               initial={{ y: -20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              className="text-center text-2xl font-semibold mb-6 text-[#F78F1E]"
+              className="text-center text-lg md:text-2xl font-semibold mb-4 md:mb-6 text-[#F78F1E]"
             >
               Get Verified
             </motion.div>
-            <div className="w-10" /> {/* Spacer for alignment */}
+            <div className="w-8 md:w-10" />
           </motion.div>
           {renderStepIndicator()}
-          <div className="mt-6">{renderStep()}</div>
+          <div className="mt-4 md:mt-6">{renderStep()}</div>
           {currentStep > 1 && currentStep < 6 && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="mt-4"
+              className="mt-3 md:mt-4"
             >
               <Button
                 variant="outline"
                 onClick={handleBack}
-                className="w-full border-[#F78F1E] text-[#F78F1E] hover:bg-[#FFF5E9]"
+                className="w-full border-[#F78F1E] text-[#F78F1E] hover:bg-[#FFF5E9] h-10 md:h-12"
               >
                 Back
               </Button>
