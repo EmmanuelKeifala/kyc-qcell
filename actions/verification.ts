@@ -97,6 +97,22 @@ function compareNames(
   };
 }
 
+// Helper function to calculate age
+const calculateAge = (birthDate: Date): number => {
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDifference = today.getMonth() - birthDate.getMonth();
+
+  // Adjust age if birthday hasn't occurred this year
+  if (
+    monthDifference < 0 ||
+    (monthDifference === 0 && today.getDate() < birthDate.getDate())
+  ) {
+    age--;
+  }
+  return age;
+};
+
 // Main verification function
 export async function verifyKYC(
   personalInfo: PersonalInfo,
@@ -121,6 +137,12 @@ export async function verifyKYC(
     const extractedDOB = new Date(extractedData.dateOfBirth);
     if (personalDOB.getTime() !== extractedDOB.getTime()) {
       reasons.push("Date of birth mismatch");
+      flagCount++;
+    }
+
+    const age = calculateAge(personalDOB);
+    if (age < 14) {
+      reasons.push("Applicant must be at least 14 years old");
       flagCount++;
     }
   }
