@@ -122,6 +122,7 @@ const CustomerTable: React.FC<{ data: DataType[] }> = ({ data }) => {
       key: "phoneNumber",
       ...getColumnSearchProps("phoneNumber"),
       sorter: (a, b) => a.phoneNumber.localeCompare(b.phoneNumber),
+      fixed: "left",
     },
     {
       title: "Status",
@@ -130,6 +131,7 @@ const CustomerTable: React.FC<{ data: DataType[] }> = ({ data }) => {
       ...getColumnSearchProps("verificationStatus"),
       sorter: (a, b) =>
         a.verificationStatus.localeCompare(b.verificationStatus),
+      fixed: "left",
     },
     {
       title: "Reasons",
