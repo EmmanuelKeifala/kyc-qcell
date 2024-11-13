@@ -119,7 +119,7 @@ const NationalIDForm = ({
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen p-6 bg-gray-50">
+    <div className="flex justify-center items-center min-h-screen p-6 bg-gray-50 ">
       <Card className="w-full max-w-2xl border-[#F78F1E]/20">
         <CardHeader>
           <CardTitle className="text-2xl font-semibold text-center text-[#F78F1E]">

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   CheckCircle,
   Upload,
@@ -28,8 +28,8 @@ import Link from "next/link";
 import Loader from "../Loader";
 import { supabase } from "@/lib/supabase";
 import { ProcessImageOCR } from "@/actions/optical-character-recognition";
-import { metadata } from "framer-motion/client";
 import { removeLeadingZero } from "@/lib/utils";
+import { verifyKYC } from "@/actions/verification";
 
 interface FormData {
   phoneNumber: string;
@@ -40,7 +40,6 @@ interface FormData {
 
 const VerificationForm = () => {
   const [currentStep, setCurrentStep] = useState<number>(1);
-
   const [formData, setFormData] = useState<FormData>({
     phoneNumber: "",
     otp: "",
@@ -60,291 +59,11 @@ const VerificationForm = () => {
     { title: "Phone", icon: <Phone size={40} /> },
     { title: "Verify", icon: <Shield size={40} /> },
     { title: "Personal Details", icon: <FileKey size={40} /> },
-
     { title: "ID Card", icon: <FileImage size={40} /> },
     { title: "Selfie", icon: <User size={40} /> },
     { title: "Review", icon: <CheckCircle size={40} /> },
   ];
 
-  const handleNext = () => {
-    setCurrentStep((prev) => Math.min(prev + 1, 5));
-  };
-
-  const handleBack = () => {
-    setCurrentStep((prev) => Math.max(prev - 1, 1));
-  };
-
-  const handlePhoneSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    setLoading(true);
-    if (formData.phoneNumber.length !== 9) {
-      toast.info("Please enter a valid 9-digit phone number.", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-      setLoading(false);
-      return;
-    }
-    try {
-      const { success, data } = await SendOTP({ number: formData.phoneNumber });
-      if (success) {
-        // use tostify here
-        toast.success("OTP sent successfully! Please check your phone.", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-        });
-        handleNext();
-      } else {
-        toast.error(`Failed to send OTP: ${data}`, {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-        });
-      }
-    } catch (error) {
-      toast.error(
-        `An error occurred while sending the OTP. Please try again.`,
-        {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-        }
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleOTPSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    setLoading(true);
-    if (formData.otp.length !== 6) {
-      toast.info("Please enter a valid 6-digit OTP.");
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const { success, data } = await VerifyOTP({
-        number: formData.phoneNumber,
-        otp: formData.otp,
-      });
-
-      if (success) {
-        toast.success("OTP verified successfully!", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-        });
-        handleNext();
-      } else {
-        toast.error(`Verification failed: ${data}`, {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-        });
-      }
-    } catch (error) {
-      toast.error(
-        "An error occurred during OTP verification. Please try again.",
-        {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-        }
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleFileUpload = async (
-    type: "idCard" | "selfie",
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setFormData((prev) => ({ ...prev, [type]: file }));
-      const { error: uploadError } = await supabase.storage
-        .from(`${type === "selfie" ? "selfie" : "idcards"}`)
-        .upload(`${file.name}`, file);
-
-      console.log("Filename: ", file.name);
-      const { data } = supabase.storage
-        .from(`${type === "selfie" ? "selfie" : "idcards"}`)
-        .getPublicUrl(`${file.name}`);
-
-      // This function should be utils
-
-      const formattedNumber = removeLeadingZero(
-        formData.phoneNumber
-      ).startsWith("232")
-        ? formData.phoneNumber
-        : "232" + removeLeadingZero(formData.phoneNumber);
-      const { data: idData } = await supabase
-        .from("verification_applicants")
-        .select("id")
-        .eq("phoneNumber", formattedNumber)
-        .single();
-
-      if (type === "selfie") {
-        const { error: urlError, data: urlData } = await supabase
-          .from("verification_applicants")
-          .update({ selfieUrl: data.publicUrl })
-          .eq("id", idData?.id);
-        console.log("Url Error: ", urlError, urlData);
-      } else if (type === "idCard") {
-        const { error: urlError, data: urlData } = await supabase
-          .from("verification_applicants")
-          .update({ idCardUrl: data.publicUrl })
-          .eq("id", idData?.id);
-        console.log("Url Error: ", urlError, urlData);
-      }
-
-      const url = URL.createObjectURL(file);
-      setPreviewUrls((prev) => ({ ...prev, [type]: url }));
-      handleNext();
-    }
-  };
-
-  const removeImage = (type: "idCard" | "selfie") => {
-    setFormData((prev) => ({ ...prev, [type]: null }));
-    if (previewUrls[type]) {
-      URL.revokeObjectURL(previewUrls[type]!);
-      setPreviewUrls((prev) => ({ ...prev, [type]: null }));
-    }
-  };
-
-  const renderStepIndicator = () => (
-    <div className="flex justify-center mb-8">
-      {steps.map((step, index) => (
-        <div key={step.title} className="flex items-center">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{
-              scale: 1,
-              opacity: 1,
-              transition: {
-                type: "spring",
-                stiffness: 300,
-                damping: 20,
-                delay: index * 0.1,
-              },
-            }}
-            onClick={() => {
-              if (index + 1 <= currentStep) {
-                setCurrentStep(index + 1);
-              } else {
-                toast.info("You need to complete the previous steps first!");
-              }
-            }}
-            className={`flex items-center justify-center rounded-full border-2 w-fit h-fit p-3 cursor-pointer 
-          ${
-            index + 1 === currentStep
-              ? "border-[#F78F1E] bg-[#FFF5E9]"
-              : index + 1 < currentStep
-              ? "border-[#F78F1E] bg-[#F78F1E]"
-              : "border-gray-300"
-          }`}
-          >
-            <div className={index + 1 < currentStep ? "text-white" : ""}>
-              {step.icon}
-            </div>
-          </motion.div>
-          {index < steps.length - 1 && (
-            <motion.div
-              initial={{ scaleX: 0 }}
-              animate={{
-                scaleX: 1,
-                transition: {
-                  type: "spring",
-                  stiffness: 300,
-                  damping: 20,
-                  delay: index * 0.1,
-                },
-              }}
-              className={`w-12 h-1 ${
-                index + 1 < currentStep ? "bg-[#F78F1E]" : "bg-gray-300"
-              }`}
-            />
-          )}
-        </div>
-      ))}
-    </div>
-  );
-
-  const handleSubmit = async () => {
-    try {
-      const formattedNumber = removeLeadingZero(
-        formData.phoneNumber
-      ).startsWith("232")
-        ? formData.phoneNumber
-        : "232" + removeLeadingZero(formData.phoneNumber);
-      const { data } = await supabase
-        .from("verification_applicants")
-        .select("idCardUrl, id")
-        .eq("phoneNumber", formattedNumber)
-        .single();
-      const responseFromOCR = await ProcessImageOCR({
-        input: data?.idCardUrl,
-      });
-
-      await supabase
-        .from("verification_applicants")
-        .update({ metadata: responseFromOCR.data })
-        .eq("id", data?.id);
-
-      setFormData({
-        phoneNumber: "",
-        otp: "",
-        idCard: null,
-        selfie: null,
-      });
-      setPreviewUrls({ idCard: null, selfie: null });
-      setCurrentStep(1);
-    } catch (error) {
-      console.log(error);
-    }
-  };
   const pageVariants = {
     initial: {
       opacity: 0,
@@ -371,23 +90,326 @@ const VerificationForm = () => {
     },
   };
 
+  const handleNext = useCallback(() => {
+    setCurrentStep((prev) => Math.min(prev + 1, steps.length));
+  }, [steps.length]);
+
+  const handleBack = useCallback(() => {
+    setCurrentStep((prev) => Math.max(prev - 1, 1));
+  }, []);
+
+  const formatPhoneNumber = useCallback((number: string) => {
+    const cleaned = removeLeadingZero(number);
+    return cleaned.startsWith("232") ? cleaned : `232${cleaned}`;
+  }, []);
+
+  const handlePhoneSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const cleanedPhone = formData.phoneNumber.replace(/\D/g, "");
+      if (cleanedPhone.length !== 9) {
+        toast.info("Please enter a valid 9-digit phone number.");
+        return;
+      }
+
+      const { success, data } = await SendOTP({ number: cleanedPhone });
+      if (success) {
+        toast.success("OTP sent successfully! Please check your phone.");
+        handleNext();
+      } else {
+        toast.error(`Failed to send OTP: ${data}`);
+      }
+    } catch (error) {
+      toast.error("An error occurred while sending the OTP. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOTPSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      if (formData.otp.length !== 6) {
+        toast.info("Please enter a valid 6-digit OTP.");
+        return;
+      }
+
+      const { success, data } = await VerifyOTP({
+        number: formatPhoneNumber(formData.phoneNumber),
+        otp: formData.otp,
+      });
+
+      if (success) {
+        toast.success("OTP verified successfully!");
+        handleNext();
+      } else {
+        toast.error(`Verification failed: ${data}`);
+      }
+    } catch (error) {
+      toast.error(
+        "An error occurred during OTP verification. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (
+    type: "idCard" | "selfie",
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setLoading(true);
+      const fileName = `${Date.now()}-${file.name}`;
+      const bucket = type === "selfie" ? "selfie" : "idcards";
+
+      // Upload file
+      const { error: uploadError } = await supabase.storage
+        .from(bucket)
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from(bucket)
+        .getPublicUrl(fileName);
+
+      // Update database
+      const formattedNumber = formatPhoneNumber(formData.phoneNumber);
+      const { data: userData, error: userError } = await supabase
+        .from("verification_applicants")
+        .select("id")
+        .eq("phoneNumber", formattedNumber)
+        .single();
+
+      if (userError) throw userError;
+
+      const updateField = type === "selfie" ? "selfieUrl" : "idCardUrl";
+      const { error: updateError } = await supabase
+        .from("verification_applicants")
+        .update({ [updateField]: urlData.publicUrl })
+        .eq("id", userData.id);
+
+      if (updateError) throw updateError;
+
+      // Update local state
+      setFormData((prev) => ({ ...prev, [type]: file }));
+      const previewUrl = URL.createObjectURL(file);
+      setPreviewUrls((prev) => ({ ...prev, [type]: previewUrl }));
+      handleNext();
+    } catch (error) {
+      toast.error(`Failed to upload ${type}. Please try again.`);
+      console.error("Upload error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const removeImage = useCallback(
+    (type: "idCard" | "selfie") => {
+      setFormData((prev) => ({ ...prev, [type]: null }));
+      if (previewUrls[type]) {
+        URL.revokeObjectURL(previewUrls[type]!);
+        setPreviewUrls((prev) => ({ ...prev, [type]: null }));
+      }
+    },
+    [previewUrls]
+  );
+
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+
+      // Step 1: Get verification applicant data
+      const formattedNumber = formatPhoneNumber(formData.phoneNumber);
+      const { data: applicantData, error: applicantError } = await supabase
+        .from("verification_applicants")
+        .select("idCardUrl, id")
+        .eq("phoneNumber", formattedNumber)
+        .single();
+
+      if (applicantError) {
+        throw new Error(
+          `Failed to fetch applicant data: ${applicantError.message}`
+        );
+      }
+
+      if (!applicantData?.idCardUrl) {
+        throw new Error("No ID card URL found for this applicant");
+      }
+
+      // Step 2: Process image with OCR
+      const responseFromOCR = await ProcessImageOCR({
+        input: applicantData.idCardUrl,
+      });
+
+      if (!responseFromOCR?.data) {
+        throw new Error("OCR processing failed to return data");
+      }
+
+      // Step 3: Update applicant metadata
+      const { data: metaData, error: updateError } = await supabase
+        .from("verification_applicants")
+        .update({ metadata: responseFromOCR.data })
+        .eq("id", applicantData.id)
+        .select("metadata, personal_detail")
+        .single();
+
+      if (updateError) {
+        throw new Error(`Failed to update metadata: ${updateError.message}`);
+      }
+
+      const parsedMetaData = metaData?.metadata;
+      const parsedPersonalData = metaData?.personal_detail;
+
+      if (!parsedMetaData || !parsedPersonalData) {
+        throw new Error("Missing required verification data");
+      }
+
+      // Step 4: Prepare verification data
+      const personalDetails = {
+        lastName: parsedPersonalData.surname,
+        firstName: parsedPersonalData.name,
+        middleName: parsedPersonalData.middleName,
+        dateOfBirth: parsedPersonalData.dateOfBirth,
+        height: parsedPersonalData.height,
+        personalIdNumber: parsedPersonalData.personalIDNumber,
+        expiryDate: parsedPersonalData.expiryDate,
+      };
+
+      const metaDetails = {
+        title: parsedMetaData.title,
+        firstName: parsedMetaData.name,
+        middleName: parsedMetaData.middleName,
+        dateOfBirth: parsedMetaData.dateOfBirth,
+        height: parsedMetaData.height,
+        personalIdNumber: parsedMetaData.personalIDNumber,
+        expiryDate: parsedMetaData.expiryDate,
+      };
+
+      // Step 5: Perform KYC verification
+      const result = await verifyKYC(personalDetails, metaDetails);
+
+      // Log verification attempt
+      console.log("KYC Verification Result:", {
+        status: result.status,
+        reasons: result.reasons,
+        formData,
+      });
+
+      await supabase
+        .from("verification_applicants")
+        .update({ reason: result.reasons, verificationStatus: result.status })
+        .eq("id", applicantData.id);
+
+      // Show success toast
+      toast.success(
+        "Your verification has been successfully submitted. You will receive an SMS with the results shortly."
+      );
+
+      setFormData({
+        phoneNumber: "",
+        otp: "",
+        idCard: null,
+        selfie: null,
+      });
+      setPreviewUrls({ idCard: null, selfie: null });
+      setCurrentStep(1);
+      // Here we are going to trigger an SMS notification
+      // await sendSMS(formattedNumber, "Your verification has been submitted successfully.");
+    } catch (error) {
+      console.error("Submission error:", error);
+
+      // Show error toast
+      toast.error("Failed to submit verification. Please try again.");
+
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const ImagePreview = ({ type }: { type: "idCard" | "selfie" }) => (
     <div className="relative">
-      <Image
-        src={previewUrls[type]!}
-        width={1000}
-        height={1000}
-        alt={`${type} preview`}
-        className="w-full h-64 object-contain rounded-lg"
-      />
-      <Button
-        variant="destructive"
-        size="icon"
-        className="absolute top-2 right-2"
-        onClick={() => removeImage(type)}
-      >
-        <X className="w-4 h-4" />
-      </Button>
+      {previewUrls[type] && (
+        <>
+          <Image
+            src={previewUrls[type]!}
+            alt={`${type} preview`}
+            width={1000}
+            height={1000}
+            className="w-full h-64 object-contain rounded-lg"
+          />
+          <Button
+            variant="destructive"
+            size="icon"
+            className="absolute top-2 right-2"
+            onClick={() => removeImage(type)}
+            aria-label={`Remove ${type} image`}
+          >
+            <X className="w-4 h-4" />
+          </Button>
+        </>
+      )}
+    </div>
+  );
+
+  const renderStepIndicator = () => (
+    <div className="flex justify-center mb-8">
+      {steps.map((step, index) => (
+        <div key={step.title} className="flex items-center">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{
+              scale: 1,
+              opacity: 1,
+              transition: {
+                type: "spring",
+                stiffness: 300,
+                damping: 20,
+                delay: index * 0.1,
+              },
+            }}
+            className={`flex items-center justify-center rounded-full border-2 w-fit h-fit p-3 cursor-pointer 
+              ${
+                index + 1 === currentStep
+                  ? "border-[#F78F1E] bg-[#FFF5E9]"
+                  : index + 1 < currentStep
+                  ? "border-[#F78F1E] bg-[#F78F1E]"
+                  : "border-gray-300"
+              }`}
+          >
+            <div className={index + 1 < currentStep ? "text-white" : ""}>
+              {step.icon}
+            </div>
+          </motion.div>
+          {index < steps.length - 1 && (
+            <motion.div
+              initial={{ scaleX: 0 }}
+              animate={{
+                scaleX: 1,
+                transition: {
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 20,
+                  delay: index * 0.1,
+                },
+              }}
+              className={`w-12 h-1 ${
+                index + 1 < currentStep ? "bg-[#F78F1E]" : "bg-gray-300"
+              }`}
+            />
+          )}
+        </div>
+      ))}
     </div>
   );
 
@@ -607,12 +629,16 @@ const VerificationForm = () => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <Button
-                      onClick={() => handleSubmit()}
-                      className="w-full bg-[#F78F1E] hover:bg-[#E67D0E] text-white"
-                    >
-                      Submit Verification
-                    </Button>
+                    {!loading ? (
+                      <Button
+                        onClick={() => handleSubmit()}
+                        className="w-full bg-[#F78F1E] hover:bg-[#E67D0E] text-white"
+                      >
+                        Submit Verification
+                      </Button>
+                    ) : (
+                      <Loader />
+                    )}
                   </motion.div>
                 </div>
               );
@@ -627,10 +653,10 @@ const VerificationForm = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen py-10 px-4">
-      <Card className="w-[60vw] border-[#F78F1E]/20">
+      <Card className="w-full max-w-2xl border-[#F78F1E]/20">
         <CardContent className="pt-6">
           <motion.div className="flex items-center justify-between mb-4">
-            <Link href={"/"}>
+            <Link href="/">
               <ArrowLeftCircle size={40} className="text-[#F78F1E]" />
             </Link>
             <motion.div
@@ -640,11 +666,11 @@ const VerificationForm = () => {
             >
               Get Verified
             </motion.div>
-            <div />
+            <div className="w-10" /> {/* Spacer for alignment */}
           </motion.div>
           {renderStepIndicator()}
           <div className="mt-6">{renderStep()}</div>
-          {currentStep > 1 && currentStep < 5 && (
+          {currentStep > 1 && currentStep < 6 && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

@@ -114,7 +114,6 @@ const CustomerTable: React.FC<{ data: DataType[] }> = ({ data }) => {
       phoneNumber: record.phoneNumber,
       status: status,
     });
-    console.log(data?.data);
   };
 
   const columns: Array<TableColumnType<DataType>> = [
@@ -132,6 +131,20 @@ const CustomerTable: React.FC<{ data: DataType[] }> = ({ data }) => {
       ...getColumnSearchProps("verificationStatus"),
       sorter: (a, b) =>
         a.verificationStatus.localeCompare(b.verificationStatus),
+    },
+    {
+      title: "Reasons",
+      dataIndex: "reason",
+      key: "reason",
+      render: (reason) => {
+        return (
+          <ul className="list-disc pl-4 space-y-1">
+            {reason.map((item:string, index) => (
+              <li key={index}>{item}</li>
+            ))}
+          </ul>
+        );
+      },
     },
     {
       title: "Personal Data",
