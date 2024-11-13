@@ -146,7 +146,7 @@ const CustomerTable: React.FC<{ data: DataType[] }> = ({ data }) => {
       },
     },
     {
-      title: "Personal Data",
+      title: "Extracted Data",
       dataIndex: "metadata",
       key: "metadata",
       render: (metadata) => (
@@ -162,6 +162,30 @@ const CustomerTable: React.FC<{ data: DataType[] }> = ({ data }) => {
           </p>
           <p>
             <strong>Personal ID:</strong> {metadata.personalIdNumber}
+          </p>
+        </div>
+      ),
+    },
+    {
+      title: "Personal Data Inputted",
+      dataIndex: "personal_detail",
+      key: "personal_detail",
+      render: (personal_detail) => (
+        <div>
+          <p>
+            <strong>First Name:</strong> {personal_detail.name}
+          </p>
+          <p>
+            <strong>Surname:</strong> {personal_detail.surname}
+          </p>
+          <p>
+            <strong>Middle Name:</strong> {personal_detail.middleName}
+          </p>
+          <p>
+            <strong>Date of Birth:</strong> {personal_detail.dateOfBirth}
+          </p>
+          <p>
+            <strong>Personal ID:</strong> {personal_detail.personalIDNumber}
           </p>
         </div>
       ),

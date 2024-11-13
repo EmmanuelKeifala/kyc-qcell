@@ -28,7 +28,10 @@ const numRetries = 5;
 const modelTimeout = 5000; // Timeout for model call in ms
 
 const cleanResponse = (content: string) => {
-  return content.replace(/```json/g, "").replace(/```/g, "").trim();
+  return content
+    .replace(/```json/g, "")
+    .replace(/```/g, "")
+    .trim();
 };
 
 const callModelWithTimeout = async (prompt: string, timeout: number) => {
@@ -45,8 +48,10 @@ export async function OCRAIFormatter({ dataInput }: { dataInput: any }) {
   try {
     const prompt = `
       Given the following data, extract only the fields: 
-      "title", "firstName", "middleName", "height", "dateOfBirth", "expiryDate", and "personalIdNumber". 
+      "title", "firstName", "middleName", "height", "dateOfBirth: 2024-11-06", "expiryDate", and "personalIdNumber". 
       Respond in valid JSON format with only these fields. Ensure JSON validity.
+    the date of birth should be in this format  2024-11-06
+
 
       Input data:
       ${JSON.stringify(dataInput)}
@@ -82,7 +87,9 @@ export async function OCRAIFormatter({ dataInput }: { dataInput: any }) {
       }
     }
 
-    throw new Error("Failed to generate valid JSON response after multiple attempts.");
+    throw new Error(
+      "Failed to generate valid JSON response after multiple attempts."
+    );
   } catch (error) {
     console.error("Error generating response:", error);
     return {
