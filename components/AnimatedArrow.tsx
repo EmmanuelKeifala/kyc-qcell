@@ -14,7 +14,7 @@ const AnimatedArrow = () => {
   return (
     <motion.div
       className="flex items-center justify-center"
-      variants={itemVariants as any}
+      // variants={itemVariants as any}
     >
       <Image
         src="/arrow-right.svg"

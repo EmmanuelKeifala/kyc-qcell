@@ -23,7 +23,6 @@ const AdminLoginModal = () => {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -116,11 +115,7 @@ const AdminLoginModal = () => {
               required
             />
           </div>
-          {error && (
-            <p className="text-red-500 font-semibold mt-4 flex justify-center">
-              {error}
-            </p>
-          )}
+
           <AlertDialogFooter>
             {!loading ? (
               <AlertDialogAction

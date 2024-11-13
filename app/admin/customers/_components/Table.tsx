@@ -19,7 +19,7 @@ type DataIndex = keyof DataType;
 const CustomerTable: React.FC<{ data: DataType[] }> = ({ data }) => {
   const [searchText, setSearchText] = useState<string>("");
   const [searchedColumn, setSearchedColumn] = useState<DataIndex | "">("");
-  const [verificationData, setVerificationData] = useState<any[]>(data);
+  const [verificationData, setVerificationData] = useState(data);
   const searchInput = useRef<InputRef>(null);
 
   const handleExport = () => {
@@ -142,10 +142,10 @@ const CustomerTable: React.FC<{ data: DataType[] }> = ({ data }) => {
         ? { ...item, verificationStatus: status }
         : item
     );
-    setVerificationData(updatedData);
+    setVerificationData(updatedData as any);
     message.success(`Status updated to "${status}"`);
 
-    const data = await UpdateCustomerStatus({
+    await UpdateCustomerStatus({
       phoneNumber: record.phoneNumber,
       status: status,
     });

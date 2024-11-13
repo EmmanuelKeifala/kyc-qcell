@@ -1,3 +1,4 @@
+"use client";
 import React, { useCallback, useState } from "react";
 import FileSaver from "file-saver";
 import { useGenerateImage } from "recharts-to-png";

@@ -13,7 +13,7 @@ type DataIndex = keyof DataType;
 const CustomerTable: React.FC<{ data: DataType[] }> = ({ data }) => {
   const [searchText, setSearchText] = useState<string>("");
   const [searchedColumn, setSearchedColumn] = useState<DataIndex | "">("");
-  const [verificationData, setVerificationData] = useState<any[]>(data);
+  const [verificationData, setVerificationData] = useState(data);
   const searchInput = useRef<InputRef>(null);
 
   const handleSearch = (
@@ -39,7 +39,6 @@ const CustomerTable: React.FC<{ data: DataType[] }> = ({ data }) => {
       selectedKeys,
       confirm,
       clearFilters,
-      close,
     }) => (
       <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
         <Input
@@ -107,10 +106,10 @@ const CustomerTable: React.FC<{ data: DataType[] }> = ({ data }) => {
         ? { ...item, verificationStatus: status }
         : item
     );
-    setVerificationData(updatedData);
+    setVerificationData(updatedData as any);
     message.success(`Status updated to "${status}"`);
 
-    const data = await UpdateCustomerStatus({
+    await UpdateCustomerStatus({
       phoneNumber: record.phoneNumber,
       status: status,
     });
@@ -139,7 +138,7 @@ const CustomerTable: React.FC<{ data: DataType[] }> = ({ data }) => {
       render: (reason) => {
         return (
           <ul className="list-disc pl-4 space-y-1">
-            {reason.map((item:string, index) => (
+            {reason.map((item: string, index: number) => (
               <li key={index}>{item}</li>
             ))}
           </ul>

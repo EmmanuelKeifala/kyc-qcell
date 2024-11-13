@@ -3,6 +3,7 @@ import AdminLoginModal from "@/components/AdminLogin";
 import AnimatedArrow from "@/components/AnimatedArrow";
 import StepCard from "@/components/StepCard";
 import { Button } from "@/components/ui/button";
+import { SearchParamProps } from "@/types";
 import { motion } from "framer-motion";
 import Link from "next/link";
 const containerVariants = {
