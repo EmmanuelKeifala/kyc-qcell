@@ -10,6 +10,8 @@ import {
   ArrowLeftCircle,
   FileKey,
 } from "lucide-react";
+import { z } from "zod";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -30,6 +32,7 @@ import { supabase } from "@/lib/supabase";
 import { ProcessImageOCR } from "@/actions/optical-character-recognition";
 import { removeLeadingZero } from "@/lib/utils";
 import { verifyKYC } from "@/actions/verification";
+import { SendSMS } from "@/actions/sendSms";
 
 interface FormData {
   phoneNumber: string;
@@ -37,6 +40,13 @@ interface FormData {
   idCard: File | null;
   selfie: File | null;
 }
+
+const phoneValidationSchema = z.object({
+  phoneNumber: z.string().regex(/^(031|034)\d{6}$/, {
+    message:
+      "Phone number must start with 031 or 034 and be exactly 9 digits long",
+  }),
+});
 
 const VerificationForm = () => {
   const [currentStep, setCurrentStep] = useState<number>(1);
@@ -108,12 +118,26 @@ const VerificationForm = () => {
     setLoading(true);
 
     try {
-      const cleanedPhone = formData.phoneNumber.replace(/\D/g, "");
+      // Validate the phone number using the Zod schema
+      const validationResult = phoneValidationSchema.safeParse({
+        phoneNumber: formData.phoneNumber,
+      });
+
+      if (!validationResult.success) {
+        // Handle validation errors
+        const errorMessage = validationResult.error.errors[0].message;
+        toast.info(errorMessage);
+        return;
+      }
+
+      // Additional check for phone length if needed
+      const cleanedPhone = formData.phoneNumber.replace(/\s+/g, ""); // If any whitespace handling is required
       if (cleanedPhone.length !== 9) {
         toast.info("Please enter a valid 9-digit phone number.");
         return;
       }
 
+      // Attempt to send OTP
       const { success, data } = await SendOTP({ number: cleanedPhone });
       if (success) {
         toast.success("OTP sent successfully! Please check your phone.");
@@ -316,8 +340,17 @@ const VerificationForm = () => {
       });
       setPreviewUrls({ idCard: null, selfie: null });
       setCurrentStep(1);
-      // Here we are going to trigger an SMS notification
-      // await sendSMS(formattedNumber, "Your verification has been submitted successfully.");
+
+      await SendSMS({
+        number: formattedNumber,
+        message: `Your verification has been submitted successfully. Your verification status is ${result.status}.`,
+      }).then((response) => {
+        if (response.success) {
+          toast.success("SMS sent successfully!");
+        } else {
+          toast.error("Failed to send SMS. Please try again.");
+        }
+      });
     } catch (error) {
       console.error("Submission error:", error);
 
@@ -371,7 +404,7 @@ const VerificationForm = () => {
                   delay: index * 0.1,
                 },
               }}
-              className={`flex items-center justify-center rounded-full border-2 
+              className={`flex items-center justify-center rounded-md border-2 
                 ${
                   index + 1 === currentStep
                     ? "border-[#F78F1E] bg-[#FFF5E9]"
@@ -385,7 +418,7 @@ const VerificationForm = () => {
               <div
                 className={`${
                   index + 1 < currentStep ? "text-white" : ""
-                } scale-75 md:scale-100 p-4 m-4`}
+                } scale-75 md:scale-100`}
               >
                 {step.icon}
               </div>
