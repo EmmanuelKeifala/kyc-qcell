@@ -12,7 +12,7 @@ export async function SendOTP({ number }: { number: string }) {
 
     const { data: existingUser, error: fetchError } = await supabase
       .from("verification_applicants")
-      .select("phoneNumber")
+      .select("phoneNumber, verificationStatus")
       .eq("phoneNumber", formattedNumber)
       .single();
 
@@ -30,6 +30,12 @@ export async function SendOTP({ number }: { number: string }) {
       `Your OTP is ${otp}. Please do not share it with anyone.`
     );
 
+    if (existingUser && existingUser.verificationStatus === "verified") {
+      return {
+        success: false,
+        data: "This phone number have already been verified",
+      };
+    }
     // Insert or update the OTP for the user
     let otpError;
     if (existingUser) {
@@ -55,7 +61,7 @@ export async function SendOTP({ number }: { number: string }) {
     params.append("username", process.env.NAME!);
     params.append("hash", process.env.HASH!);
     params.append("message", message);
-    params.append("sender", "KycQcellVerification");
+    params.append("sender", encodeURIComponent("KYCVerify"));
     params.append("numbers", formattedNumber);
     params.append("test", TEST);
 
@@ -68,6 +74,8 @@ export async function SendOTP({ number }: { number: string }) {
     });
 
     const data = await response.json();
+
+    console.log("data: ", data);
 
     if (data.status !== "success") {
       return { success: false, data: "Failed to send OTP message." };

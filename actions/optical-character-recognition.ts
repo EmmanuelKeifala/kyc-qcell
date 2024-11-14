@@ -42,7 +42,6 @@ export async function ProcessImageOCR({
 
       if (!response.ok) {
         const responseD = await response.json();
-        console.log(responseD);
         if (response.status === 403) {
           console.log('403 Forbidden: Exceeded concurrent connections. Retrying...');
           await new Promise(resolve => setTimeout(resolve, retryDelay));

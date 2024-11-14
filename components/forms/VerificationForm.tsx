@@ -276,34 +276,27 @@ const VerificationForm = () => {
 
       // Step 4: Prepare verification data
       const personalDetails = {
-        lastName: parsedPersonalData.surname,
-        firstName: parsedPersonalData.name,
-        middleName: parsedPersonalData.middleName,
-        dateOfBirth: parsedPersonalData.dateOfBirth,
-        height: parsedPersonalData.height,
-        personalIdNumber: parsedPersonalData.personalIDNumber,
-        expiryDate: parsedPersonalData.expiryDate,
+        lastName: parsedPersonalData?.surname,
+        firstName: parsedPersonalData?.name,
+        middleName: parsedPersonalData?.middleName,
+        dateOfBirth: parsedPersonalData?.dateOfBirth,
+        height: parsedPersonalData?.height,
+        personalIdNumber: parsedPersonalData?.personalIDNumber,
+        expiryDate: parsedPersonalData?.expiryDate,
       };
 
       const metaDetails = {
-        title: parsedMetaData.title,
-        firstName: parsedMetaData.name,
-        middleName: parsedMetaData.middleName,
-        dateOfBirth: parsedMetaData.dateOfBirth,
-        height: parsedMetaData.height,
-        personalIdNumber: parsedMetaData.personalIDNumber,
-        expiryDate: parsedMetaData.expiryDate,
+        title: parsedMetaData?.title,
+        firstName: parsedMetaData?.name,
+        middleName: parsedMetaData?.middleName,
+        dateOfBirth: parsedMetaData?.dateOfBirth,
+        height: parsedMetaData?.height,
+        personalIdNumber: parsedMetaData?.personalIDNumber,
+        expiryDate: parsedMetaData?.expiryDate,
       };
 
       // Step 5: Perform KYC verification
       const result = await verifyKYC(personalDetails, metaDetails);
-
-      // Log verification attempt
-      console.log("KYC Verification Result:", {
-        status: result.status,
-        reasons: result.reasons,
-        formData,
-      });
 
       await supabase
         .from("verification_applicants")
@@ -582,8 +575,17 @@ const VerificationForm = () => {
                 </form>
               );
 
+            case 3:
+              return (
+                <div>
+                  <NationalIDForm
+                    phoneNumber={formData.phoneNumber}
+                    onNext={() => handleNext()}
+                  />
+                </div>
+              );
+
             case 4:
-            case 5:
               const type = currentStep === 4 ? "idCard" : "selfie";
               return (
                 <div className="space-y-4 md:space-y-6 flex-1 flex flex-col">
@@ -606,6 +608,36 @@ const VerificationForm = () => {
                             {type === "idCard" ? "ID Card Photo" : "Selfie"}
                           </p>
                           <p className="text-xs md:text-sm text-gray-500">
+                            Click to upload or drag and drop
+                          </p>
+                        </label>
+                      </div>
+                    )}
+                  </motion.div>
+                </div>
+              );
+
+            case 5:
+              return (
+                <div className="space-y-6 flex-1 flex flex-col">
+                  <motion.div className="flex-1" whileHover={{ scale: 1.02 }}>
+                    {previewUrls.selfie ? (
+                      <ImagePreview type="selfie" />
+                    ) : (
+                      <div className="border-2 border-dashed border-[#F78F1E] rounded-lg p-6 text-center h-full flex flex-col items-center justify-center">
+                        <input
+                          type="file"
+                          id="selfie"
+                          className="hidden"
+                          accept="image/*"
+                          onChange={(e) => handleFileUpload("selfie", e)}
+                        />
+                        <label htmlFor="selfie" className="cursor-pointer">
+                          <Upload className="mx-auto w-12 h-12 text-[#F78F1E]" />
+                          <p className="mt-2 text-[#F78F1E] font-medium">
+                            Upload Selfie
+                          </p>
+                          <p className="text-sm text-gray-500">
                             Click to upload or drag and drop
                           </p>
                         </label>

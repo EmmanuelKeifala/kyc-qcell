@@ -44,7 +44,6 @@ const callModelWithTimeout = async (prompt: string, timeout: number) => {
 };
 
 export async function OCRAIFormatter({ dataInput }: { dataInput: any }) {
-  console.log("dataInput", dataInput);
   try {
     const prompt = `
       Given the following data, extract only the fields: 

@@ -192,26 +192,3 @@ export async function verifyKYC(
     reasons,
   };
 }
-
-// Example usage
-// async function handleKYCVerification(
-//   formData: PersonalInfo,
-//   extractedData: ExtractedIDData
-// ) {
-//   try {
-//     const result = await verifyKYC(formData, extractedData);
-
-//     // Log verification attempt
-//     console.log("KYC Verification Result:", {
-//       status: result.status,
-//       reasons: result.reasons,
-//       formData,
-//       extractedData,
-//     });
-
-//     return result;
-//   } catch (error) {
-//     console.error("KYC verification failed:", error);
-//     throw new Error("Failed to process KYC verification");
-//   }
-// }
