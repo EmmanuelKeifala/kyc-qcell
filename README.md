@@ -2,6 +2,32 @@
 
 This project is a KYC (Know Your Customer) application that simplifies user verification through secure mobile number authentication and biometric verification.
 
+To set up and start the development server, follow these steps:
+
+### Prerequisites
+
+1. Ensure you have **Node.js** and **npm** (or **yarn** / **pnpm**) installed.
+
+   - You can download Node.js [here](https://nodejs.org/).
+
+2. Clone the project repository:
+
+   ```bash
+   git clone https://github.com/EmmanuelKeifala/kyc-qcell.git
+   cd kyc-qcell
+   ```
+
+3. Env
+   ```bash
+   NAME="textlocalname"
+   HASH="hash for textlocal"
+   SENDER="sender id"
+   NEXT_PUBLIC_SUPABASE_URL="your Supabase URL"
+   APIKEY_OCR="API key for FreeOnlineOCR"
+   NEXT_PUBLIC_GOOGLE_API_KEY="Google API Key"
+   NEXT_PUBLIC_SUPABASE_ANON_KEY="your Supabase Anon Key"
+   ```
+
 ## Getting Started
 
 To start the development server:
