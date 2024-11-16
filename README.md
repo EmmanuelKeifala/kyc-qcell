@@ -68,7 +68,9 @@ This KYC app streamlines user verification with the following steps:
 - **Data Visualization**: Recharts
 - **Form Handling**: React Hook Form, Zod
 - **Additional Libraries**: Framer Motion, React Toastify, Zustand, XLSX
-
+# Admin Access 
+  email:emmanuelkeifala@gmail.com
+  password:emmanuel
 ## Learn More
 
 To learn more about Next.js and other tools used:
